@@ -11,6 +11,8 @@ export interface Storage {
   /** Create a directory (and parents). No error if it already exists. */
   ensureDir(path: string): Promise<void>;
   readFile(path: string): Promise<string>;
+  /** Names of the immediate subdirectories of `path` ([] if it doesn't exist). */
+  listDirs(path: string): Promise<readonly string[]>;
   /**
    * Write a file. If `overwrite` is false and the file exists, the write is skipped
    * and `false` is returned. Returns `true` when the file was written.

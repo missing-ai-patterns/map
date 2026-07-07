@@ -1,14 +1,16 @@
 /**
- * Registers the built-in command set. `init` is implemented; the rest are scaffolded
- * placeholders that map to the future modules in `future/cli.md`.
+ * Registers the built-in command set. `init` and `patterns` are implemented; the rest
+ * are scaffolded placeholders that map to the future modules in `future/cli.md`.
  */
 
 import type { CommandRegistry } from "../command-registry.ts";
 import { initCommand } from "./init.ts";
+import { patternsCommand } from "./patterns.ts";
 import { planned } from "./planned.ts";
 
 export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register(initCommand);
+  registry.register(patternsCommand);
 
   registry.register(
     planned({
@@ -50,13 +52,6 @@ export function registerBuiltinCommands(registry: CommandRegistry): void {
       name: "recommend",
       summary: "Recommend patterns missing from the detected architecture.",
       module: "Module 3 — Recommendation Engine",
-    }),
-  );
-  registry.register(
-    planned({
-      name: "patterns",
-      summary: "List and search the MAP pattern catalog.",
-      module: "Module 1 — Knowledge Base",
     }),
   );
 }

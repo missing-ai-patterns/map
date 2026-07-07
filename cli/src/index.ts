@@ -21,7 +21,7 @@ export * from "./plugins/index.ts";
 export * from "./project/index.ts";
 
 // Composition root
-export { createDefaultServices } from "./services.ts";
+export { createDefaultServices, defaultPatternsDir } from "./services.ts";
 export type { Services, ServiceOverrides } from "./services.ts";
 
 // CLI (Module 5)

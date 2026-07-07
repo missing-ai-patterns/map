@@ -10,7 +10,8 @@ The product vision lives in [`../future/cli.md`](../future/cli.md).
 ## Status
 
 - ✅ `map init` — creates a `.map/` workspace.
-- 🏗️ `analyze`, `graph`, `doctor`, `explain`, `diff`, `recommend`, `patterns` — scaffolded stubs that print what they will do.
+- ✅ `map patterns` — lists and searches the published pattern catalog (`patterns/**/pattern.yaml`), with `--category` and `--json`.
+- 🏗️ `analyze`, `graph`, `doctor`, `explain`, `diff`, `recommend` — scaffolded stubs that print what they will do.
 - 🧩 Core modules exist as interfaces with small default implementations and clear `TODO`s.
 
 ## Requirements
@@ -104,9 +105,9 @@ provider plugins. See [`src/plugins/plugin.ts`](src/plugins/plugin.ts).
 
 ## What's next (TODOs)
 
-- **Module 1:** a Markdown/JSON knowledge loader that reads `patterns/` and `.map/knowledge/`.
+- **Module 1:** extend the Markdown loader to narrative sections (problem, solution, trade-offs) and add a JSON loader for `.map/knowledge/`.
 - **Module 2:** a first analyzer (TypeScript) detecting embeddings, vector search, RAG, tool calling, streaming, memory, model routing, prompt guards.
 - **Module 3:** a rule-based recommender backed by the pattern graph.
-- **Module 5:** implement `doctor`, `patterns`, then `analyze` → `recommend` → `explain` → `diff`.
+- **Module 5:** implement `doctor`, then `analyze` → `recommend` → `explain` → `diff`.
 
 Grep for `TODO(` to find the extension points.
