@@ -37,7 +37,7 @@
 
 ## MAP Score
 
-*A 1–5 star rating per dimension. See [MAP Score](../../../map-score/SPEC.md). Higher is
+*A 1–5 star rating per dimension. See [MAP Score](../../docs/specs/map-score.md). Higher is
 better, except Complexity (lower is simpler).*
 
 | Dimension | Score | |

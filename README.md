@@ -90,6 +90,7 @@ Read the full [Philosophy](docs/philosophy.md).
 ```
 map/
   docs/          Layer 1, Knowledge: philosophy, glossary, style guide, pattern anatomy
+    specs/         Specifications: pattern contract, MAP Score, the registry
   patterns/      Layer 2, Patterns: one folder per category, one folder per pattern
     _template/     The pattern template contributors copy
     retrieval/
@@ -104,10 +105,15 @@ map/
     observability/
   reference/     Layer 3, Reference: small implementations (python, typescript)
   examples/      Layer 3: end-to-end examples that combine several patterns
-  future/        Design notes for where MAP is heading (see the CLI vision)
+  scripts/       Registry builder: compiles the catalog into registry.json
   website/       Documentation site (future)
   .github/       Contributor experience: templates, labels, discussions, CI
 ```
+
+The **MAP CLI** lives in its own repository,
+[missing-ai-patterns/cli](https://github.com/missing-ai-patterns/cli). It consumes the
+**registry** — the machine-readable catalog this repository publishes with every release
+(see the [registry spec](docs/specs/registry.md)).
 
 ### Pattern categories
 
@@ -157,12 +163,15 @@ MAP does not replace your coding agent — it gives the agent better **architect
 and guardrails, so its decisions are consistent and reviewable. See the
 [Claude Code example](examples/claude-code/).
 
-Future [MAP CLI](cli/) commands may surface this directly (not yet implemented):
+The [MAP CLI](https://github.com/missing-ai-patterns/cli) surfaces this directly:
 
 ```bash
-map explain retrieval.chunking     # what the pattern is and when to use it
-map prompt retrieval.chunking      # print the implementation prompt for an agent
-map apply retrieval.chunking       # scaffold the pattern into the current project
+npm install -g @missing-ai-patterns/cli
+
+map explain retrieval/chunking     # what the pattern is and when to use it
+map add retrieval/chunking         # copy prompt.md + acceptance.md into your .map/ workspace
+map analyze                        # detect the AI architecture already in your project
+map recommend                      # which MAP patterns your architecture is missing
 ```
 
 ## Contributing
@@ -204,17 +213,18 @@ backlog and phases.
 ## Where MAP is heading
 
 Documentation is the first form of MAP, not the last. The longer-term plan, sketched in
-[`future/cli.md`](future/cli.md), is to grow MAP into an architecture layer for AI
-engineering, backed by a structured knowledge graph of patterns rather than Markdown
-alone.
+the CLI's [vision document](https://github.com/missing-ai-patterns/cli/blob/main/docs/vision.md),
+is to grow MAP into an architecture layer for AI engineering, backed by a structured
+knowledge graph of patterns rather than Markdown alone. The first pieces exist today:
+the [registry](docs/specs/registry.md) and the working `map` CLI.
 
 That knowledge base could then power several tools that share one source of truth:
 
-- A `map` CLI that analyzes a codebase and reports its AI architecture.
+- A `map` CLI that analyzes a codebase and reports its AI architecture (**shipped**:
+  `map analyze`, `map recommend`).
 - Detection of patterns such as embeddings, vector search, RAG, tool calling, memory,
-  and model routing.
-- Recommendations for patterns you are missing (for example, suggesting a prompt
-  injection guard and a semantic cache once RAG is detected).
+  and model routing (**shipped** for dependency manifests; source-code analyzers next).
+- Recommendations for patterns you are missing (**shipped**, rule-based; graph-backed next).
 - Generated architecture diagrams and explanations of the decisions behind them.
 - A pattern graph with relationships like depends_on, works_with, alternative_to, and
   conflicts_with.
@@ -235,8 +245,9 @@ Nearer-term product goals:
 
 MAP uses two licenses so it's easy to build on while authorship stays credited:
 
-- **Code** (`cli/`, `reference/`, `examples/`) — [MIT](LICENSE). Use, copy, modify, fork,
-  ship commercially; just keep the copyright notice.
+- **Code** (`reference/`, `examples/`, `scripts/`, and the
+  [CLI repository](https://github.com/missing-ai-patterns/cli)) — [MIT](LICENSE). Use,
+  copy, modify, fork, ship commercially; just keep the copyright notice.
 - **Content** (`patterns/`, `docs/`, prose, diagrams) — [CC BY 4.0](LICENSE-CONTENT).
   Use, share, and adapt freely, including commercially, **with attribution** to MAP.
 - **Name & brand** — "MAP" / "Missing AI Patterns" are reserved; forks should use a

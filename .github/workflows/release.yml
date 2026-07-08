@@ -45,6 +45,16 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set up Node
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build registry artifact
+        if: steps.check.outputs.exists == 'false'
+        run: node scripts/build-registry.ts --out dist/registry.json
+
       - name: Create tag and GitHub Release
         if: steps.check.outputs.exists == 'false'
         env:
@@ -54,5 +64,6 @@ jobs:
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
             --title "$TAG" \
-            --generate-notes
-          echo "Released $TAG."
+            --generate-notes \
+            dist/registry.json
+          echo "Released $TAG with registry.json."
