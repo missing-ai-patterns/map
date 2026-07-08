@@ -44,9 +44,13 @@ jobs:
       - name: Test (with coverage gate)
         run: pnpm run test:coverage
 
-      - name: Smoke test (map init)
+      - name: Build
+        run: pnpm run build
+
+      - name: Smoke test (map init, built artifact)
         run: |
-          node ./bin/map.ts --help
-          node ./bin/map.ts init
-          test -f .map/config.yaml
-          test -f .map/knowledge/patterns.json
+          node ./dist/map.js --help
+          node ./dist/map.js init
+          test -f .map/map.config.json
+          test -d .map/patterns
+          node ./dist/map.js doctor

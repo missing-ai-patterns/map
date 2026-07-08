@@ -3,7 +3,6 @@ import { InMemoryKnowledgeBase } from "../src/knowledge/in-memory-knowledge-base
 import { NullRecommender } from "../src/recommendation/recommender.ts";
 import { ConsoleReporter } from "../src/reporting/reporter.ts";
 import { createDefaultServices } from "../src/services.ts";
-import { renderManifest, defaultManifest } from "../src/config/config.ts";
 import type { Pattern } from "../src/domain/index.ts";
 
 function makePattern(overrides: Partial<Pattern>): Pattern {
@@ -67,14 +66,6 @@ describe("createDefaultServices", () => {
 
     const kb = new InMemoryKnowledgeBase([]);
     expect(createDefaultServices({ knowledgeBase: kb }).knowledgeBase).toBe(kb);
-  });
-});
-
-describe("renderManifest", () => {
-  it("renders a header and the project name", () => {
-    const out = renderManifest(defaultManifest("my-project"));
-    expect(out.startsWith("# MAP project manifest")).toBe(true);
-    expect(out).toContain("name: my-project");
   });
 });
 

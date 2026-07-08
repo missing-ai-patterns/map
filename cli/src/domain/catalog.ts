@@ -27,12 +27,24 @@ export interface CatalogEntry {
   readonly name: string;
   readonly category: PatternCategory;
   readonly status: CatalogStatus;
-  /** One-line summary; present when the pattern is written (from pattern.yaml). */
+  /** One-line summary; present when the pattern is written. */
   readonly summary?: string;
-  /** Maturity from pattern.yaml (e.g. "established"); present when written. */
+  /** Maturity (e.g. "established"); present when written. */
   readonly maturity?: string;
-  /** MAP Score from pattern.yaml; present when written and complete. */
+  /** Alternative names for the pattern. */
+  readonly alsoKnownAs?: readonly string[];
+  /** MAP Score; present when written and complete. */
   readonly score?: MapScore;
-  /** Related pattern ids from pattern.yaml; present when written. */
+  /** Decision guidance from the pattern contract; present when written. */
+  readonly whenToUse?: readonly string[];
+  readonly whenNotToUse?: readonly string[];
+  /** Related pattern ids; present when written. */
   readonly related?: readonly PatternId[];
+  /** External references (papers, articles). */
+  readonly references?: readonly string[];
+  /**
+   * Pattern files embedded by the registry (`prompt.md`, `acceptance.md`),
+   * so `map add` can scaffold them without network access.
+   */
+  readonly files?: Readonly<Record<string, string>>;
 }

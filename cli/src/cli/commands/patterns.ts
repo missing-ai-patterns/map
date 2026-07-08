@@ -1,11 +1,12 @@
 /**
  * `map patterns [text]` — browse the MAP pattern catalog.
  *
- * Lists every pattern the catalog knows about (written patterns from `patterns/`
- * merged with the roadmap), grouped by category. Filters compose: a positional
- * text query, `--category=<cat>`, and `--status=<published|in-progress|planned>`.
- * `--json` emits the matched entries as JSON for scripts and agents. Published
- * patterns show their MAP Score as a star line (see map-score/SPEC.md).
+ * Lists every pattern the registry knows about, grouped by category. Filters
+ * compose: a positional text query, `--category=<cat>`, and
+ * `--status=<published|in-progress|planned>`. `--json` emits the matched
+ * entries as JSON for scripts and agents (embedded pattern files are omitted —
+ * `map add` materializes those). Published patterns show their MAP Score as a
+ * star line.
  */
 
 import type { Command, CommandContext, CommandResult } from "../command.ts";
@@ -21,7 +22,13 @@ const STATUS_ICONS: Readonly<Record<CatalogStatus, string>> = {
 export const patternsCommand: Command = {
   name: "patterns",
   summary: "List and search the MAP pattern catalog.",
-  usage: "map patterns [text] [--category=<category>] [--status=<status>] [--json]",
+  usage: "map patterns [text] [--category <category>] [--status <status>] [--json]",
+  args: "[text]",
+  options: [
+    { flags: "--category <category>", description: "filter by category" },
+    { flags: "--status <status>", description: "filter by status (published, in-progress, planned)" },
+    { flags: "--json", description: "machine-readable output" },
+  ],
 
   async run(ctx: CommandContext): Promise<CommandResult> {
     const { reporter, services } = ctx;
@@ -39,7 +46,8 @@ export const patternsCommand: Command = {
     const matches = await services.catalog.find({ text, category, status });
 
     if (ctx.flags["json"] === true) {
-      reporter.info(JSON.stringify(matches, null, 2));
+      const listing = matches.map(({ files: _files, ...entry }) => entry);
+      reporter.info(JSON.stringify(listing, null, 2));
       return OK;
     }
 
@@ -75,7 +83,7 @@ export const patternsCommand: Command = {
 
     reporter.info("");
     reporter.success(
-      "Published patterns live under patterns/<category>/<slug>/ (see ROADMAP.md for the rest).",
+      "Read one with 'map explain <id>'; adopt a published one with 'map add <id>'.",
     );
     return OK;
   },

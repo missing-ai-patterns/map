@@ -1,0 +1,637 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-07T20:19:20.184Z",
+  "source": {
+    "repository": "https://github.com/missing-ai-patterns/map",
+    "version": "0.3.1"
+  },
+  "categories": [
+    "retrieval",
+    "memory",
+    "agents",
+    "security",
+    "context",
+    "evaluation",
+    "performance",
+    "routing",
+    "tool-calling",
+    "observability"
+  ],
+  "patterns": [
+    {
+      "id": "agents/blackboard",
+      "name": "Blackboard",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/executor",
+      "name": "Executor",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/human-in-the-loop-approval",
+      "name": "Human-in-the-Loop Approval",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/multi-agent-collaboration",
+      "name": "Multi-Agent Collaboration",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/orchestrator-worker",
+      "name": "Orchestrator–Worker",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/plan-and-execute",
+      "name": "Plan-and-Execute",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/planner",
+      "name": "Planner",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/react",
+      "name": "ReAct (Reason + Act)",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/reflection-self-critique",
+      "name": "Reflection / Self-Critique",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/retry-self-healing",
+      "name": "Retry / Self-Healing",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/supervisor-router-agent",
+      "name": "Supervisor / Router Agent",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/tool-budget",
+      "name": "Tool Budget",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/tree-of-thoughts",
+      "name": "Tree of Thoughts",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-ordering",
+      "name": "Context Ordering (lost-in-the-middle)",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-summarization",
+      "name": "Context Summarization",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-window-budgeting",
+      "name": "Context Window Budgeting",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/dynamic-context-assembly",
+      "name": "Dynamic Context Assembly",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/few-shot-example-selection",
+      "name": "Few-Shot Example Selection",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/message-pruning",
+      "name": "Message Pruning",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/prompt-compression",
+      "name": "Prompt Compression",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/structured-prompting",
+      "name": "Structured Prompting",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/faithfulness-groundedness",
+      "name": "Faithfulness / Groundedness Evaluation",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/golden-dataset",
+      "name": "Golden Dataset",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/hallucination-detection",
+      "name": "Hallucination Detection",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/llm-as-judge",
+      "name": "LLM-as-Judge",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/online-a-b-testing",
+      "name": "Online A/B Testing",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/pairwise-comparison",
+      "name": "Pairwise Comparison",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/regression-testing",
+      "name": "Regression Testing",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/rubric-scoring",
+      "name": "Rubric Scoring",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/synthetic-eval-data-generation",
+      "name": "Synthetic Eval-Data Generation",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "memory/conversation-memory",
+      "name": "Conversation (Buffer) Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/entity-memory",
+      "name": "Entity Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/episodic-memory",
+      "name": "Episodic Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/knowledge-graph-memory",
+      "name": "Knowledge-Graph Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/long-term-memory",
+      "name": "Long-Term Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/memory-consolidation-forgetting",
+      "name": "Memory Consolidation & Forgetting",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/semantic-memory",
+      "name": "Semantic Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/sliding-window-memory",
+      "name": "Sliding-Window Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/summary-memory",
+      "name": "Summary Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/vector-backed-memory",
+      "name": "Vector-Backed Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "observability/audit-trails",
+      "name": "Audit Trails",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/drift-detection",
+      "name": "Drift Detection",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/eval-dashboards",
+      "name": "Eval Dashboards",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/feedback-collection",
+      "name": "Feedback Collection",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/latency-monitoring",
+      "name": "Latency Monitoring",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/prompt-completion-logging",
+      "name": "Prompt & Completion Logging",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/token-cost-tracking",
+      "name": "Token & Cost Tracking",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/tracing",
+      "name": "Tracing / Spans",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "performance/model-cascade",
+      "name": "Model Cascade (cheap-first)",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/parallel-fan-out-retrieval",
+      "name": "Parallel / Fan-out Retrieval",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/prompt-cache",
+      "name": "Prompt Cache",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/request-batching",
+      "name": "Request Batching",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/response-cache",
+      "name": "Response Cache",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/speculative-execution",
+      "name": "Speculative Execution",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/streaming",
+      "name": "Streaming",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/token-budget-optimization",
+      "name": "Token-Budget Optimization",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/chunking",
+      "name": "Chunking",
+      "category": "retrieval",
+      "status": "published",
+      "summary": "Split documents into smaller, self-contained units so retrieval can find and return the right passage instead of a whole document.",
+      "maturity": "established",
+      "alsoKnownAs": [
+        "Text splitting",
+        "Document segmentation"
+      ],
+      "score": {
+        "complexity": 2,
+        "latency": 5,
+        "cost": 5,
+        "accuracyImpact": 5,
+        "productionReadiness": 5
+      },
+      "whenToUse": [
+        "Building RAG over documents longer than a paragraph or two.",
+        "Unstructured or semi-structured text with exploitable internal structure.",
+        "You need granular, citable retrieval of a specific passage."
+      ],
+      "whenNotToUse": [
+        "The unit is already the right size (rows, FAQ pairs, short notes).",
+        "The task needs the whole document at once (full-doc summarization).",
+        "Tabular/relational data — use structured filtering, not text chunking."
+      ],
+      "related": [
+        "retrieval/parent-child-retrieval",
+        "retrieval/sentence-window-retrieval",
+        "retrieval/contextual-retrieval",
+        "retrieval/late-chunking",
+        "retrieval/reranking",
+        "retrieval/metadata-filtering"
+      ],
+      "references": [
+        "https://arxiv.org/abs/2005.11401",
+        "https://arxiv.org/abs/2307.03172"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — Chunking\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to implement\n> document **Chunking** correctly in an existing project. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nImplement a chunking step that splits documents into retrievable units for a RAG pipeline,\nso retrieval returns precise, citable passages — not whole documents and not broken\nfragments.\n\n## Context\n\n- **Project:** <describe: language, existing ingestion/embedding pipeline, vector store>.\n- **Current state:** <e.g. \"we embed whole documents\" or \"we split every 500 characters\">.\n- **Related MAP pattern:** retrieval/chunking — follow its documented trade-offs.\n\n## Requirements\n\n- Split each document into chunks sized to the embedding model's budget (size by **tokens**,\n  not raw characters, when possible).\n- Prefer **natural boundaries**: headings/sections → paragraphs → sentences → words. Only\n  hard-cut as a last resort.\n- Support a small **overlap** between adjacent chunks (configurable; default ~10%).\n- Attach **metadata** to every chunk: source id, title, heading path, and position/index.\n- Choose the strategy by **document type** (prose vs Markdown/HTML vs code), not one global rule.\n\n## Constraints\n\n- Deterministic and dependency-light; don't pull in a heavy framework just to split text.\n- Configurable chunk size, overlap, and strategy — no magic numbers hard-coded in call sites.\n- Must handle empty input, very long unbreakable tokens, and documents smaller than one chunk.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **Naive fixed-character splitting** as the only strategy — it cuts words and facts in half.\n- **Breaking semantic boundaries** — don't split mid-sentence or mid-clause when a nearby\n  natural boundary exists.\n- **Splitting code blocks incorrectly** — keep fenced code blocks and, ideally, whole\n  functions/classes together; never cut through a code block by character count.\n- **Ignoring document structure** — use Markdown/HTML headings; carry the heading path into\n  chunk metadata instead of throwing structure away.\n- **One chunking strategy for every document type** — prose, Markdown, and source code need\n  different boundaries; make the strategy selectable per input.\n\n## Architecture expectations\n\n- A `Chunker` interface with pluggable strategies (recursive/structure-aware/token-aware),\n  selected by document type — so strategies are replaceable and testable in isolation.\n- Chunking is a pure transformation (document in, chunks+metadata out); no embedding or I/O\n  mixed in.\n- Output a typed `Chunk { text, index, source, metadata }`, ready for embedding.\n\n## Security considerations\n\n- Treat document content as **untrusted**: chunk text may later reach a model, so this step\n  must not execute or interpret content, only segment it.\n- Preserve any access-control metadata (tenant/document ACLs) onto each chunk so downstream\n  retrieval can filter on it.\n\n## Acceptance criteria\n\nSatisfy [`acceptance.md`](acceptance.md). In short: correct boundaries, configurable\nsize/overlap/strategy, metadata attached, structure and code respected, edge cases handled,\nand tests covering all of it.\n\n## Test expectations\n\n- Unit tests for: recursive boundary selection, overlap, token vs character sizing,\n  Markdown heading awareness, code-block integrity, and the edge cases above.\n- Deterministic; runs in CI.\n\n---\n\n*MAP gives you the architectural guardrails for chunking; you still implement and verify the\ncode. Prefer the documented trade-offs (size vs precision, overlap vs cost) over guesswork —\nand measure chunk size on your own corpus rather than copying a number.*\n",
+        "acceptance.md": "# Acceptance Criteria — Chunking\n\nHow to verify a Chunking implementation is correct and production-safe. Use as a review\nchecklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md) and\n[`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] Splits a document into chunks sized to a configurable target (by tokens when possible).\n- [ ] Prefers natural boundaries (heading → paragraph → sentence → word); hard-cut is a last resort.\n- [ ] Supports configurable **overlap** between adjacent chunks.\n- [ ] Attaches metadata to every chunk: `source`, `index/position`, and `heading path` where available.\n- [ ] Strategy is selectable per **document type** (prose / Markdown-HTML / code).\n\n## Non-functional requirements\n\n- [ ] **Latency:** chunking a typical document is fast (milliseconds, not seconds).\n- [ ] **Cost:** no unnecessary model calls; splitting itself is local/cheap.\n- [ ] **Maintainability:** a `Chunker` interface with pluggable strategies; no hard-coded magic numbers in call sites.\n- [ ] **Determinism:** same input + config → same chunks.\n\n## Security checks\n\n- [ ] Chunk text is only segmented, never executed or interpreted.\n- [ ] Access-control metadata (tenant/document ACLs) is preserved onto each chunk for downstream filtering.\n- [ ] No secrets/PII added to logs during chunking.\n\n## Failure modes\n\n- [ ] **Empty/whitespace input** → returns no chunks (no crash).\n- [ ] **Document smaller than one chunk** → returns a single chunk.\n- [ ] **Unbreakable token longer than the size** → degrades to a hard cut rather than looping/erroring.\n- [ ] **Code blocks** → not split by character count mid-block.\n- [ ] **Missing headings/structure** → still produces valid chunks (falls back gracefully).\n\n## Tests\n\n- [ ] Unit tests for boundary selection, overlap, token vs character sizing, Markdown heading awareness, and code-block integrity.\n- [ ] All failure modes above are tested.\n- [ ] Deterministic; runs in CI.\n\n## Review checklist\n\n- [ ] Doesn't silently reduce to naive fixed-character splitting.\n- [ ] Anti-patterns in `prompt.md` are avoided (semantic boundaries, code blocks, structure, per-type strategy).\n- [ ] Chunk size / overlap / strategy are configurable.\n- [ ] Chunk size was (or can be) tuned against the actual corpus, not copied from a blog.\n"
+      }
+    },
+    {
+      "id": "retrieval/contextual-compression",
+      "name": "Contextual Compression",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/contextual-retrieval",
+      "name": "Contextual Retrieval (chunk-level context prefixing)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/graph-rag",
+      "name": "Graph RAG",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hierarchical-recursive-retrieval",
+      "name": "Hierarchical / Recursive Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hybrid-search",
+      "name": "Hybrid Search (dense + sparse)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hyde",
+      "name": "HyDE (Hypothetical Document Embeddings)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/late-chunking",
+      "name": "Late Chunking",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/metadata-filtering",
+      "name": "Metadata Filtering",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/multi-query-retrieval",
+      "name": "Multi-Query Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/parent-child-retrieval",
+      "name": "Parent-Child (Small-to-Big) Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/reranking",
+      "name": "Reranking (cross-encoder)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/self-query-retrieval",
+      "name": "Self-Query Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/semantic-cache",
+      "name": "Semantic Cache",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/sentence-window-retrieval",
+      "name": "Sentence-Window Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "routing/complexity-based-routing",
+      "name": "Complexity-Based Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/cost-based-routing",
+      "name": "Cost-Based Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/fallback-routing",
+      "name": "Fallback Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/intent-routing",
+      "name": "Intent Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/load-balancing-multiplexing",
+      "name": "Load Balancing / Multiplexing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/model-routing",
+      "name": "Model Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/semantic-routing",
+      "name": "Semantic Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "security/content-moderation",
+      "name": "Content Moderation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/input-validation",
+      "name": "Input Validation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/least-privilege-tool-access",
+      "name": "Least-Privilege Tool Access",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/output-guardrails-filtering",
+      "name": "Output Guardrails / Filtering",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/pii-redaction",
+      "name": "PII Redaction",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/prompt-injection-defense",
+      "name": "Prompt Injection Defense",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/rate-limiting-abuse-prevention",
+      "name": "Rate Limiting & Abuse Prevention",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/sandboxing",
+      "name": "Sandboxing (tool & code execution)",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/secret-isolation",
+      "name": "Secret Isolation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/tenant-isolation",
+      "name": "Tenant Isolation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/basic-tool-calling",
+      "name": "Basic Tool Calling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/confirmation-gated-tools",
+      "name": "Confirmation-Gated Tools",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/dynamic-tool-loading",
+      "name": "Dynamic Tool Loading",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/parallel-tool-calls",
+      "name": "Parallel Tool Calls",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/structured-output-function-calling",
+      "name": "Structured Output / Function Calling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-error-handling",
+      "name": "Tool Error Handling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-result-validation",
+      "name": "Tool Result Validation",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-selection-filtering",
+      "name": "Tool Selection / Filtering",
+      "category": "tool-calling",
+      "status": "planned"
+    }
+  ]
+}

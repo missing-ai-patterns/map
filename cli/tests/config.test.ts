@@ -1,36 +1,24 @@
 import { describe, it, expect } from "vitest";
-import { stringifyYaml } from "../src/config/yaml.ts";
-import { defaultConfig, renderConfig } from "../src/config/config.ts";
+import { parseConfig, CONFIG_SCHEMA_VERSION } from "../src/config/config.ts";
 
-describe("stringifyYaml", () => {
-  it("renders nested maps and string arrays", () => {
-    const yaml = stringifyYaml({
-      version: 1,
-      analysis: { include: ["src/**"], analyzers: [] },
-      enabled: true,
-    });
-    expect(yaml).toBe(
-      [
-        "version: 1",
-        "analysis:",
-        "  include:",
-        '    - "src/**"',
-        "  analyzers: []",
-        "enabled: true",
-        "",
-      ].join("\n"),
+describe("parseConfig", () => {
+  it("accepts a valid map.config.json", () => {
+    const config = parseConfig(
+      JSON.stringify({
+        version: CONFIG_SCHEMA_VERSION,
+        project: { name: "demo", createdAt: "2026-01-01T00:00:00.000Z", languages: ["typescript"] },
+        analysis: { analyzers: ["typescript"], include: ["src/**"], exclude: [] },
+        registry: { source: "default" },
+      }),
     );
+    expect(config.version).toBe(CONFIG_SCHEMA_VERSION);
+    expect(config.project.name).toBe("demo");
   });
 
-  it("quotes strings that need it", () => {
-    expect(stringifyYaml("a: b")).toBe('"a: b"\n');
-  });
-});
-
-describe("renderConfig", () => {
-  it("includes a header comment and the schema version", () => {
-    const rendered = renderConfig(defaultConfig());
-    expect(rendered.startsWith("# MAP configuration")).toBe(true);
-    expect(rendered).toContain("version: 1");
+  it("rejects non-objects, missing versions, and future versions", () => {
+    expect(() => parseConfig("[]")).toThrow(/JSON object/);
+    expect(() => parseConfig("{}")).toThrow(/version/);
+    expect(() => parseConfig('{"version": 99}')).toThrow(/newer than/);
+    expect(() => parseConfig("{nope")).toThrow();
   });
 });

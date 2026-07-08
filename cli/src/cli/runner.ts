@@ -1,10 +1,12 @@
 /**
- * Parses argv, selects a command, and runs it. Uses Node's built-in `parseArgs` so
- * the CLI has no argument-parsing dependency. Value flags use `--key=value`; bare
- * `--flag` is boolean.
+ * Builds the Commander program from the command registry and runs it.
+ *
+ * Commander is an implementation detail of this file: commands declare their
+ * surface on the `Command` contract and never import Commander themselves, so
+ * plugins can register commands without depending on the parsing library.
  */
 
-import { parseArgs } from "node:util";
+import { Command as CommanderCommand, CommanderError } from "commander";
 import { CommandRegistry } from "./command-registry.ts";
 import { registerBuiltinCommands } from "./commands/index.ts";
 import type { Command, CommandContext, FlagValue } from "./command.ts";
@@ -12,8 +14,7 @@ import { ConsoleReporter } from "../reporting/index.ts";
 import type { Reporter } from "../reporting/index.ts";
 import { createDefaultServices } from "../services.ts";
 import type { Services } from "../services.ts";
-
-const VERSION = "0.0.0";
+import { packageVersion } from "../assets.ts";
 
 export interface RunnerDeps {
   readonly registry?: CommandRegistry;
@@ -31,83 +32,84 @@ export async function runCli(
   const services = deps.services ?? createDefaultServices();
   const cwd = deps.cwd ?? process.cwd();
 
-  const { values, positionals } = parseArgs({
-    args: [...argv],
-    allowPositionals: true,
-    strict: false,
-    options: {
-      help: { type: "boolean", short: "h" },
-      version: { type: "boolean", short: "v" },
-      force: { type: "boolean", short: "f" },
-    },
-  });
+  let exitCode = 0;
 
-  const flags = values as Record<string, FlagValue>;
-  const [commandName, ...rest] = positionals;
+  const program = new CommanderCommand("map")
+    .description("MAP — Missing AI Patterns. Analyze, explain, and adopt AI architecture patterns.")
+    .version(packageVersion(), "-v, --version")
+    .exitOverride()
+    .configureOutput({
+      writeOut: (text) => reporter.info(text.trimEnd()),
+      writeErr: (text) => reporter.error(text.trimEnd()),
+    });
 
-  if (flags["version"] === true && commandName === undefined) {
-    reporter.info(`map ${VERSION}`);
+  for (const command of registry.list()) {
+    attach(program, command, { cwd, services, reporter }, (code) => {
+      exitCode = code;
+    });
+  }
+
+  if (argv.length === 0) {
+    program.outputHelp();
     return 0;
   }
-
-  if (commandName === undefined) {
-    printHelp(registry, reporter);
-    return 0;
-  }
-
-  const command = registry.get(commandName);
-  if (!command) {
-    reporter.error(`Unknown command: ${commandName}`);
-    printHelp(registry, reporter);
-    return 1;
-  }
-
-  if (flags["help"] === true) {
-    printCommandHelp(command, reporter);
-    return 0;
-  }
-
-  const context: CommandContext = {
-    cwd,
-    args: rest,
-    flags,
-    services,
-    reporter,
-  };
 
   try {
-    const result = await command.run(context);
-    return result.exitCode;
+    await program.parseAsync([...argv], { from: "user" });
   } catch (error) {
-    reporter.error(errorMessage(error));
-    return 1;
+    return handleCommanderExit(error, reporter, exitCode);
   }
+  return exitCode;
+}
+
+function attach(
+  program: CommanderCommand,
+  command: Command,
+  base: Pick<CommandContext, "cwd" | "services" | "reporter">,
+  setExitCode: (code: number) => void,
+): void {
+  const sub = program.command(command.name).description(command.summary);
+  if (command.args !== undefined) sub.argument(command.args);
+  for (const option of command.options ?? []) {
+    sub.option(option.flags, option.description);
+  }
+
+  sub.action(async (...invocation) => {
+    // Commander passes declared positionals, then the options object, then itself.
+    const args = invocation.slice(0, -2).filter((a): a is string => typeof a === "string");
+    const flags = invocation[invocation.length - 2] as Record<string, FlagValue>;
+
+    try {
+      const result = await command.run({ ...base, args, flags });
+      setExitCode(result.exitCode);
+    } catch (error) {
+      base.reporter.error(error instanceof Error ? error.message : String(error));
+      setExitCode(1);
+    }
+  });
+}
+
+/**
+ * `exitOverride` turns every Commander-initiated exit (help, version, unknown
+ * command, bad option) into a thrown CommanderError; map it to an exit code.
+ */
+function handleCommanderExit(error: unknown, reporter: Reporter, current: number): number {
+  if (error instanceof CommanderError) {
+    if (error.code === "commander.helpDisplayed" || error.code === "commander.version") {
+      return current;
+    }
+    if (error.code === "commander.help") {
+      // Help shown because no/unknown subcommand; Commander already printed it.
+      return error.exitCode === 0 ? current : error.exitCode;
+    }
+    return error.exitCode;
+  }
+  reporter.error(error instanceof Error ? error.message : String(error));
+  return 1;
 }
 
 function defaultRegistry(): CommandRegistry {
   const registry = new CommandRegistry();
   registerBuiltinCommands(registry);
   return registry;
-}
-
-function printHelp(registry: CommandRegistry, reporter: Reporter): void {
-  reporter.info("MAP — AI architecture analysis (foundation)");
-  reporter.info("");
-  reporter.info("Usage: map <command> [options]");
-  reporter.info("");
-  reporter.info("Commands:");
-  for (const command of registry.list()) {
-    reporter.info(`  ${command.name.padEnd(12)} ${command.summary}`);
-  }
-  reporter.info("");
-  reporter.info("Run 'map <command> --help' for details.");
-}
-
-function printCommandHelp(command: Command, reporter: Reporter): void {
-  reporter.info(command.summary);
-  if (command.usage) reporter.info(`Usage: ${command.usage}`);
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

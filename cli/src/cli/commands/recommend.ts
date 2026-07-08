@@ -15,6 +15,7 @@ export const recommendCommand: Command = {
   name: "recommend",
   summary: "Recommend patterns missing from the detected architecture.",
   usage: "map recommend [path]",
+  args: "[path]",
 
   async run(ctx: CommandContext): Promise<CommandResult> {
     const { reporter, services } = ctx;
@@ -45,7 +46,7 @@ export const recommendCommand: Command = {
     }
     reporter.info("");
     reporter.success(
-      `${recommendations.length} recommendation(s). Patterns live under patterns/<category>/<name>/ (see ROADMAP.md).`,
+      `${recommendations.length} recommendation(s). Read one with 'map explain <id>'.`,
     );
     return OK;
   },

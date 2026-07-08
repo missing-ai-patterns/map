@@ -1,36 +1,35 @@
 /**
- * Registers the built-in command set. `init`, `analyze`, `recommend`, `patterns`,
- * and `doctor` are implemented; the rest are scaffolded placeholders that map to
- * the future modules in `future/cli.md`.
+ * Registers the built-in command set. `init`, `add`, `explain`, `analyze`,
+ * `recommend`, `patterns`, `doctor`, and `update` are implemented; the rest are
+ * scaffolded placeholders for future modules.
  */
 
 import type { CommandRegistry } from "../command-registry.ts";
 import { initCommand } from "./init.ts";
+import { addCommand } from "./add.ts";
+import { explainCommand } from "./explain.ts";
 import { analyzeCommand } from "./analyze.ts";
 import { recommendCommand } from "./recommend.ts";
 import { patternsCommand } from "./patterns.ts";
 import { doctorCommand } from "./doctor.ts";
+import { updateCommand } from "./update.ts";
 import { planned } from "./planned.ts";
 
 export function registerBuiltinCommands(registry: CommandRegistry): void {
   registry.register(initCommand);
+  registry.register(addCommand);
+  registry.register(explainCommand);
   registry.register(analyzeCommand);
   registry.register(recommendCommand);
   registry.register(patternsCommand);
   registry.register(doctorCommand);
+  registry.register(updateCommand);
 
   registry.register(
     planned({
       name: "graph",
       summary: "Build and inspect the pattern graph.",
       module: "Module 4 — Graph",
-    }),
-  );
-  registry.register(
-    planned({
-      name: "explain",
-      summary: "Explain a detected architectural decision or a pattern.",
-      module: "Module 1 — Knowledge Base",
     }),
   );
   registry.register(

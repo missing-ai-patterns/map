@@ -1,0 +1,16 @@
+{
+  "version": {{schemaVersion}},
+  "project": {
+    "name": {{projectName}},
+    "createdAt": {{createdAt}},
+    "languages": {{languages}}
+  },
+  "analysis": {
+    "analyzers": {{analyzers}},
+    "include": {{include}},
+    "exclude": {{exclude}}
+  },
+  "registry": {
+    "source": "default"
+  }
+}

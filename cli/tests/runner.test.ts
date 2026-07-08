@@ -3,47 +3,41 @@ import { runCli } from "../src/cli/runner.ts";
 import { CommandRegistry } from "../src/cli/command-registry.ts";
 import type { Command, CommandContext } from "../src/cli/command.ts";
 import { OK } from "../src/cli/command.ts";
-import type { Reporter } from "../src/reporting/index.ts";
-
-function memoryReporter(): { reporter: Reporter; lines: string[] } {
-  const lines: string[] = [];
-  const reporter: Reporter = {
-    info: (m) => void lines.push(m),
-    success: (m) => void lines.push(m),
-    warn: (m) => void lines.push(m),
-    error: (m) => void lines.push(m),
-  };
-  return { reporter, lines };
-}
+import { capture } from "./helpers.ts";
 
 describe("runCli", () => {
   it("prints help and returns 0 when no command is given", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     const code = await runCli([], { reporter });
     expect(code).toBe(0);
-    expect(lines.join("\n")).toContain("Usage: map <command>");
+    expect(reporter.lines.join("\n")).toContain("Usage: map");
   });
 
   it("returns 0 and prints a semver for --version", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     const code = await runCli(["--version"], { reporter });
     expect(code).toBe(0);
-    expect(lines.join("\n")).toMatch(/map \d+\.\d+\.\d+/);
+    expect(reporter.lines.join("\n")).toMatch(/\d+\.\d+\.\d+/);
   });
 
   it("returns 1 for an unknown command", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     expect(await runCli(["does-not-exist"], { reporter })).toBe(1);
-    expect(lines.join("\n")).toContain("Unknown command");
+    expect(reporter.lines.join("\n")).toContain("unknown command");
   });
 
   it("dispatches to a command and passes positional args and flags", async () => {
-    const { reporter } = memoryReporter();
+    const reporter = capture();
     let received: CommandContext | undefined;
     const registry = new CommandRegistry();
     const cmd: Command = {
       name: "echo",
       summary: "test command",
+      args: "[value]",
+      options: [
+        { flags: "--flag", description: "a boolean flag" },
+        { flags: "--key <value>", description: "a value flag" },
+      ],
       async run(ctx) {
         received = ctx;
         return OK;
@@ -62,7 +56,7 @@ describe("runCli", () => {
   });
 
   it("returns 1 when a command throws", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     const registry = new CommandRegistry();
     registry.register({
       name: "boom",
@@ -72,11 +66,11 @@ describe("runCli", () => {
       },
     });
     expect(await runCli(["boom"], { reporter, registry })).toBe(1);
-    expect(lines.join("\n")).toContain("kaboom");
+    expect(reporter.lines.join("\n")).toContain("kaboom");
   });
 
   it("shows command help with --help", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     const registry = new CommandRegistry();
     registry.register({
       name: "thing",
@@ -88,13 +82,13 @@ describe("runCli", () => {
     });
     const code = await runCli(["thing", "--help"], { reporter, registry });
     expect(code).toBe(0);
-    expect(lines.join("\n")).toContain("does a thing");
+    expect(reporter.lines.join("\n")).toContain("does a thing");
   });
 
   it("runs the built-in planned commands and warns", async () => {
-    const { reporter, lines } = memoryReporter();
+    const reporter = capture();
     const code = await runCli(["graph"], { reporter });
     expect(code).toBe(0);
-    expect(lines.join("\n")).toContain("planned");
+    expect(reporter.lines.join("\n")).toContain("planned");
   });
 });

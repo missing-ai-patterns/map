@@ -22,6 +22,7 @@ export const analyzeCommand: Command = {
   name: "analyze",
   summary: "Scan the project and detect AI architecture concepts.",
   usage: "map analyze [path]",
+  args: "[path]",
 
   async run(ctx: CommandContext): Promise<CommandResult> {
     const { reporter, services } = ctx;

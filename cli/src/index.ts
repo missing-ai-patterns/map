@@ -1,5 +1,5 @@
 /**
- * Public entry point for `@map/cli`.
+ * Public entry point for `@missing-ai-patterns/cli`.
  *
  * The CLI is one consumer of these modules; the same surface is meant to power a
  * website, an API, and AI agents later. Import from here rather than reaching into
@@ -19,6 +19,7 @@ export * from "./reporting/index.ts";
 export * from "./config/index.ts";
 export * from "./plugins/index.ts";
 export * from "./project/index.ts";
+export * from "./scaffold/index.ts";
 
 // Composition root
 export { createDefaultServices } from "./services.ts";

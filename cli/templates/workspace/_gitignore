@@ -1,0 +1,3 @@
+# MAP workspace — local artifacts that should not be committed.
+cache/
+reports/

@@ -1,13 +1,8 @@
-export type { MapConfig, ProjectManifest } from "./config.ts";
+export type { MapConfig } from "./config.ts";
 export {
   CONFIG_SCHEMA_VERSION,
   MAP_DIR,
-  defaultConfig,
-  defaultManifest,
-  configFromFacts,
-  manifestFromFacts,
-  renderConfig,
-  renderManifest,
+  CONFIG_FILE,
+  LEGACY_WORKSPACE_FILES,
+  parseConfig,
 } from "./config.ts";
-export { stringifyYaml } from "./yaml.ts";
-export type { YamlValue } from "./yaml.ts";

@@ -133,17 +133,35 @@ describe("map doctor", () => {
     }
   });
 
-  it("reports corrupted workspace files as problems", async () => {
+  it("reports a corrupted map.config.json as a problem", async () => {
     const dir = await tempProject("map-doctor-");
     try {
       await runCli(["init"], { cwd: dir, reporter: capture() });
-      await writeFile(join(dir, ".map", "knowledge", "patterns.json"), "{not json");
+      await writeFile(join(dir, ".map", "map.config.json"), "{not json");
 
       const reporter = capture();
       const code = await runCli(["doctor"], { cwd: dir, reporter });
 
       expect(code).toBe(1);
-      expect(reporter.lines.join("\n")).toContain("not valid JSON");
+      expect(reporter.lines.join("\n")).toContain("map.config.json is invalid");
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("warns about a legacy v1 workspace", async () => {
+    const dir = await tempProject("map-doctor-");
+    try {
+      await runCli(["init"], { cwd: dir, reporter: capture() });
+      await writeFile(join(dir, ".map", "config.yaml"), "version: 1\n");
+
+      const reporter = capture();
+      const code = await runCli(["doctor"], { cwd: dir, reporter });
+
+      expect(code).toBe(0);
+      const output = reporter.lines.join("\n");
+      expect(output).toContain("legacy workspace files present");
+      expect(output).toContain("map init --yes");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

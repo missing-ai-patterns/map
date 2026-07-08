@@ -1,25 +1,39 @@
 {
-  "name": "@map/cli",
-  "version": "0.0.0",
-  "description": "MAP CLI — analyze, explain, and recommend AI architecture patterns. Foundation scaffold.",
+  "name": "@missing-ai-patterns/cli",
+  "version": "0.4.0",
+  "description": "MAP CLI — initialize an AI-architecture workspace, analyze a codebase, and adopt Missing AI Patterns.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/missing-ai-patterns/cli.git"
+  },
+  "homepage": "https://github.com/missing-ai-patterns/map",
   "bin": {
-    "map": "./bin/map.ts"
+    "map": "./dist/map.js"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist",
+    "templates",
+    "registry-snapshot"
+  ],
   "engines": {
-    "node": ">=22"
+    "node": ">=20"
   },
   "scripts": {
     "map": "node ./bin/map.ts",
-    "init:demo": "node ./bin/map.ts init",
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sync-snapshot": "node ../scripts/build-registry.ts --out ./registry-snapshot/registry.json"
   },
   "keywords": [
     "ai",
@@ -29,9 +43,14 @@
     "rag",
     "analysis"
   ],
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0",
+    "commander": "^14.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^4.1.9",
+    "tsup": "^8.0.0",
     "typescript": "^5.6.0",
     "vitest": "^4.1.9"
   }

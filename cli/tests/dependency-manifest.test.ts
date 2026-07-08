@@ -1,28 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { Storage } from "../src/storage/index.ts";
 import { DependencyManifestAnalyzer, mergeConcepts } from "../src/analyzer/index.ts";
-
-/** In-memory storage: `files` maps absolute paths to contents. */
-function fakeStorage(files: Record<string, string>): Storage {
-  return {
-    async exists(path) {
-      return path in files;
-    },
-    async ensureDir() {},
-    async listDirs() {
-      return [];
-    },
-    async readFile(path) {
-      const contents = files[path];
-      if (contents === undefined) throw new Error(`ENOENT: ${path}`);
-      return contents;
-    },
-    async writeFile(path, contents) {
-      files[path] = contents;
-      return true;
-    },
-  };
-}
+import { fakeStorage } from "./helpers.ts";
 
 describe("DependencyManifestAnalyzer", () => {
   it("does not support a project without manifests", async () => {

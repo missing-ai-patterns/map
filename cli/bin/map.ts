@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 /**
- * Executable entry point for the `map` CLI.
- *
- * Runs on Node's native TypeScript support (>=22), so no build step is required for
- * the foundation. It parses argv and delegates everything to the runner.
+ * Development entry point for the `map` CLI (runs TypeScript directly on
+ * Node >= 22). The published executable is built from src/bin.ts by tsup.
  */
 
 import { runCli } from "../src/cli/runner.ts";
 
-const argv = process.argv.slice(2);
-const exitCode = await runCli(argv);
-process.exitCode = exitCode;
+process.exitCode = await runCli(process.argv.slice(2));
