@@ -26,7 +26,7 @@ patterns/<category>/<pattern>/
 | File | Audience | Purpose |
 |------|----------|---------|
 | `README.md` | Humans | The pattern article, following the [template](../patterns/_template/PATTERN_TEMPLATE.md) and [pattern anatomy](pattern-anatomy.md). **Required.** |
-| `pattern.yaml` | Tools, CLI, website, agents | Structured metadata: id, category, [MAP Score](../map-score/SPEC.md), when to use / not, related patterns, references. |
+| `pattern.yaml` | Tools, CLI, website, agents | Structured metadata: id, category, [MAP Score](specs/map-score.md), when to use / not, related patterns, references. |
 | `prompt.md` | AI coding agents | A copy-pasteable prompt (Claude Code / Cursor / Gemini CLI) to implement the pattern correctly in an existing project. Based on [templates/prompt.md](../templates/prompt.md). |
 | `acceptance.md` | Humans & agents | A checklist to verify an implementation. Based on [templates/acceptance.md](../templates/acceptance.md). |
 | `diagram.mmd` | Everyone | The architecture diagram as Mermaid source, so tools can render it independently of the README. |
@@ -39,7 +39,7 @@ patterns/<category>/<pattern>/
 - **Additive and optional.** A pattern with only `README.md` is valid. The AI-ready files
   are layered on as needed.
 - **Consistent keys.** `pattern.yaml` uses the same vocabulary as the written sections and
-  the [MAP Score](../map-score/) dimensions, so docs, data, and scores stay in sync.
+  the [MAP Score](specs/map-score.md) dimensions, so docs, data, and scores stay in sync.
 - **MAP augments agents; it doesn't replace them.** These files give an agent better
   architectural context and guardrails — the agent still writes the code.
 
@@ -51,7 +51,7 @@ name: Chunking
 category: retrieval
 maturity: established
 summary: Split documents into retrievable units.
-score:            # MAP Score, 1–5 (see map-score/SPEC.md)
+score:            # MAP Score, 1–5 (see docs/specs/map-score.md)
   complexity: 2
   latency: 5
   cost: 5

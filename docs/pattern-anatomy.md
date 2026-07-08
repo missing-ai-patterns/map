@@ -11,7 +11,7 @@ for and how to write it well. The machine-readable starting point is
 |---------|---------|------|
 | **Title** | The canonical name of the pattern. | Use the established name; list synonyms under "Also known as." |
 | **Decision** | A 20-second "use if / avoid if" so readers self-select fast. | Short ✅/❌ bullets at the very top. |
-| **MAP Score** | 1–5 star rating across five dimensions (see [MAP Score](../map-score/SPEC.md)). | A small table; higher is better, except Complexity. |
+| **MAP Score** | 1–5 star rating across five dimensions (see [MAP Score](specs/map-score.md)). | A small table; higher is better, except Complexity. |
 | **Problem** | The concrete situation the reader is in when they reach for this pattern. | State it from the developer's point of view. 2–3 sentences. |
 | **Motivation** | Why the naive approach fails. | A short scenario beats abstract claims. |
 | **When to use** | Conditions where this is a good fit. | Concrete bullets. Prefer "if X and Y." |

@@ -1,37 +1,61 @@
+#!/usr/bin/env node
 /**
- * POC — programmatic use of the MAP pattern catalog.
+ * POC — consuming the MAP registry programmatically.
  *
- * Loads the repo's catalog (written patterns merged with the roadmap) and renders a
- * decision brief you could paste into an ADR or feed to an AI agent as grounding
- * context. Run from the repo root:
+ * The registry (docs/specs/registry.md) is the machine-readable catalog this
+ * repository publishes. This script reads it and answers a practical question:
+ * "which retrieval patterns exist, and which are written?"
  *
- *   node examples/poc-pattern-catalog/demo.ts [query]
+ * It prefers a locally built registry (node scripts/build-registry.ts) and
+ * falls back to the latest published release. Runs on Node >= 22, no deps:
+ *
+ *   node examples/poc-pattern-catalog/demo.ts [category]
  */
 
-import { createDefaultServices } from "../../cli/src/index.ts";
+import { readFile } from "node:fs/promises";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const query = process.argv[2] ?? "chunk";
+const REGISTRY_URL =
+  "https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json";
 
-const { catalog } = createDefaultServices();
-const matches = await catalog.find({ text: query });
-
-if (matches.length === 0) {
-  console.log(`No pattern matches "${query}" — see ROADMAP.md for the target catalog.`);
-  process.exit(0);
+interface Entry {
+  id: string;
+  name: string;
+  category: string;
+  status: string;
+  summary?: string;
+  score?: Record<string, number>;
 }
 
-console.log(`# Decision brief: patterns matching "${query}"\n`);
-for (const entry of matches) {
-  console.log(`## ${entry.name} (\`${entry.id}\`) — ${entry.status}`);
-  if (entry.summary) console.log(entry.summary + "\n");
-  if (entry.maturity) console.log(`- Maturity: ${entry.maturity}`);
-  if (entry.score) {
-    console.log(
-      `- MAP Score: complexity ${entry.score.complexity}/5, latency ${entry.score.latency}/5, cost ${entry.score.cost}/5, accuracy ${entry.score.accuracyImpact}/5, readiness ${entry.score.productionReadiness}/5`,
-    );
+const localPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+  "dist",
+  "registry.json",
+);
+
+let json: string;
+try {
+  json = await readFile(localPath, "utf8");
+  console.log(`registry: ${localPath} (local build)\n`);
+} catch {
+  console.log(`registry: ${REGISTRY_URL}\n`);
+  json = await (await fetch(REGISTRY_URL)).text();
+}
+
+const { patterns } = JSON.parse(json) as { patterns: Entry[] };
+const category = process.argv[2] ?? "retrieval";
+const matches = patterns.filter((p) => p.category === category);
+
+console.log(`${matches.length} ${category} pattern(s):\n`);
+for (const p of matches) {
+  const icon = p.status === "published" ? "✅" : p.status === "in-progress" ? "🟡" : "⬜";
+  console.log(`${icon} ${p.id} — ${p.name}`);
+  if (p.summary) console.log(`   ${p.summary}`);
+  if (p.score) {
+    const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
+    console.log(`   Complexity ${stars(p.score["complexity"] ?? 0)} · Readiness ${stars(p.score["productionReadiness"] ?? 0)}`);
   }
-  if (entry.related && entry.related.length > 0) {
-    console.log(`- Related: ${entry.related.join(", ")}`);
-  }
-  console.log();
 }

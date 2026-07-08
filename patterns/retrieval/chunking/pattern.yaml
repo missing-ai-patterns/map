@@ -1,5 +1,5 @@
 # Machine-readable metadata for the Chunking pattern.
-# See docs/pattern-contract.md for the contract and map-score/SPEC.md for the score scale.
+# See docs/pattern-contract.md for the contract and docs/specs/map-score.md for the score scale.
 id: retrieval/chunking
 name: Chunking
 category: retrieval
@@ -13,7 +13,7 @@ summary: >
   Split documents into smaller, self-contained units so retrieval can find and return the
   right passage instead of a whole document.
 
-# MAP Score — 1..5 per dimension (see map-score/SPEC.md).
+# MAP Score — 1..5 per dimension (see docs/specs/map-score.md).
 score:
   complexity: 2
   latency: 5
