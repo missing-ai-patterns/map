@@ -33,7 +33,7 @@
 | Accuracy Impact | ★★★★★ | 5/5 |
 | Production Readiness | ★★★★★ | 5/5 |
 
-<sub>Higher is better, except **Complexity** (lower is simpler). See [MAP Score](../../../map-score/SPEC.md).</sub>
+<sub>Higher is better, except **Complexity** (lower is simpler). See [MAP Score](../../../docs/specs/map-score.md).</sub>
 
 ## Problem
 
