@@ -1,0 +1,56 @@
+# Machine-readable metadata for the Prompt Injection Defense pattern.
+# See docs/pattern-contract.md for the contract and docs/specs/map-score.md for the score scale.
+id: security/prompt-injection-defense
+name: Prompt Injection Defense
+category: security
+slug: prompt-injection-defense
+maturity: emerging
+also_known_as:
+  - Indirect prompt injection mitigation
+  - Instruction/data separation
+
+summary: >
+  Treat all untrusted text reaching the model — user input, retrieved documents, tool
+  results — as data that may contain hostile instructions, and layer defenses so those
+  instructions cannot become actions.
+
+# MAP Score — 1..5 per dimension (see docs/specs/map-score.md).
+score:
+  complexity: 3
+  latency: 4
+  cost: 4
+  accuracyImpact: 3
+  productionReadiness: 4
+
+when_to_use:
+  - Untrusted content flows into prompts (RAG documents, uploads, emails, web pages, tool output).
+  - The model can call tools or trigger actions with real-world consequences.
+  - Model output is shown to other users or consumed by downstream systems.
+
+when_not_to_use:
+  - Every token the model sees is operator-authored — no user input, retrieval, or tools.
+  - Output is fully sandboxed and never executed, shown to others, or trusted downstream.
+  - As a substitute for least-privilege design — guards complement capability limits, never replace them.
+
+related:
+  - security/input-validation
+  - security/output-guardrails-filtering
+  - security/least-privilege-tool-access
+  - security/sandboxing
+  - tool-calling/confirmation-gated-tools
+  - evaluation/llm-as-judge
+
+references:
+  - https://arxiv.org/abs/2302.12173
+  - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  - https://simonwillison.net/2023/Apr/25/dual-llm-pattern/
+  - https://arxiv.org/abs/2503.18813
+  - https://arxiv.org/abs/2403.14720
+
+# Files present for this pattern (the pattern-contract layer).
+files:
+  - README.md
+  - pattern.yaml
+  - prompt.md
+  - acceptance.md
+  - diagram.mmd

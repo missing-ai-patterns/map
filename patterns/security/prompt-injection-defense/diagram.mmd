@@ -1,0 +1,13 @@
+%% MAP pattern: security/prompt-injection-defense — architecture diagram (Mermaid source)
+flowchart LR
+    U[User input] --> IV[1 Input validation<br/>+ injection heuristics]
+    D[(Untrusted content:<br/>docs, tools, web)] --> QT[2 Quarantine + marking<br/>content is DATA]
+    IV --> PR[3 Prompt assembly<br/>privileged instructions separate]
+    QT --> PR
+    PR --> M[Model]
+    M --> TG[4 Tool gate<br/>least privilege + confirmation]
+    M --> OF[5 Output filter<br/>egress + leakage checks]
+    TG --> ACT[Actions]
+    OF --> OUT[Response]
+    TG -. audit .-> LOG[(6 Logging & detection)]
+    OF -. audit .-> LOG

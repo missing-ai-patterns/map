@@ -84,7 +84,7 @@ Planning, acting, reflecting, and coordinating.
 
 Defending against injection, leakage, and abuse.
 
-- ⬜ Prompt Injection Defense
+- ✅ [Prompt Injection Defense](patterns/security/prompt-injection-defense/)
 - ⬜ Secret Isolation
 - ⬜ Tenant Isolation
 - ⬜ PII Redaction
