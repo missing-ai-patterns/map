@@ -51,7 +51,7 @@ Getting the right context in front of the model.
 
 Persisting and recalling state across turns and sessions.
 
-- ⬜ Conversation (Buffer) Memory
+- ✅ [Conversation (Buffer) Memory](patterns/memory/conversation-memory/)
 - ⬜ Sliding-Window Memory
 - ⬜ Summary Memory
 - ⬜ Long-Term Memory
