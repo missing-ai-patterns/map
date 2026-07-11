@@ -113,7 +113,7 @@ Budgeting and shaping the context window.
 Measuring quality, regressions, and hallucination.
 
 - ⬜ Golden Dataset
-- ⬜ LLM-as-Judge
+- ✅ [LLM-as-Judge](patterns/evaluation/llm-as-judge/)
 - ⬜ Regression Testing
 - ⬜ Hallucination Detection
 - ⬜ Rubric Scoring
