@@ -1,0 +1,58 @@
+# Machine-readable metadata for the LLM-as-Judge pattern.
+# See docs/pattern-contract.md for the contract and docs/specs/map-score.md for the score scale.
+id: evaluation/llm-as-judge
+name: LLM-as-Judge
+category: evaluation
+slug: llm-as-judge
+maturity: established
+also_known_as:
+  - Model-graded evaluation
+  - AI feedback
+  - Autorater
+
+summary: >
+  Grade AI outputs with a judge model anchored to an explicit rubric and calibrated
+  against human labels, so subjective quality becomes a measurable, regression-testable
+  number — while the judge's own biases are measured and controlled.
+
+# MAP Score — 1..5 per dimension (see docs/specs/map-score.md).
+score:
+  complexity: 3
+  latency: 4
+  cost: 3
+  accuracyImpact: 4
+  productionReadiness: 4
+
+when_to_use:
+  - The quality that matters is a judgment call (helpfulness, faithfulness, tone) that string matching cannot score.
+  - Far more outputs need grading than humans can review — regression suites, A/B runs, production sampling.
+  - A rubric plus a small human-labeled calibration set is affordable.
+
+when_not_to_use:
+  - A deterministic check answers the question (schema validation, exact match, runnable tests).
+  - No human labels exist — an uncalibrated judge is an opinion generator, not an evaluator.
+  - A single high-stakes output needs a verdict — judges are statistical instruments for aggregates.
+
+related:
+  - evaluation/golden-dataset
+  - evaluation/rubric-scoring
+  - evaluation/pairwise-comparison
+  - evaluation/regression-testing
+  - evaluation/faithfulness-groundedness
+  - observability/eval-dashboards
+  - security/output-guardrails-filtering
+
+references:
+  - https://arxiv.org/abs/2306.05685
+  - https://arxiv.org/abs/2404.18796
+  - https://arxiv.org/abs/2404.13076
+  - https://www.anthropic.com/research/statistical-approach-to-model-evals
+  - https://github.com/openai/evals
+
+# Files present for this pattern (the pattern-contract layer).
+files:
+  - README.md
+  - pattern.yaml
+  - prompt.md
+  - acceptance.md
+  - diagram.mmd

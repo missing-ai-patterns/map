@@ -1,0 +1,11 @@
+%% MAP pattern: memory/conversation-memory — architecture diagram (Mermaid source)
+flowchart LR
+    U[User turn] --> B[(Conversation buffer<br/>messages + tool calls/results)]
+    B --> E[Eviction policy<br/>token budget · keep system + recent<br/>atomic tool pairs]
+    SP[System prompt<br/>never evicted] --> A[Prompt assembly]
+    E --> A
+    A --> M[Model]
+    M -- "assistant turn / tool calls" --> B
+    M --> R[Response]
+    E -. "evicted turns (optional)" .-> S[Summary / long-term memory<br/>upgrade path]
+    E -. "eviction events" .-> LOG[(Observability)]

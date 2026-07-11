@@ -1,0 +1,12 @@
+%% MAP pattern: agents/orchestrator-worker — architecture diagram (Mermaid source)
+flowchart TB
+    T[Task] --> O[Orchestrator<br/>plan · dispatch · synthesize]
+    O -- "sub-task spec<br/>(goal, budget, output schema)" --> W1[Worker 1<br/>own context, scoped tools]
+    O -- "sub-task spec" --> W2[Worker 2<br/>own context, scoped tools]
+    O -- "sub-task spec" --> W3[Worker N<br/>own context, scoped tools]
+    W1 -- "structured result" --> O
+    W2 -- "structured result" --> O
+    W3 -- "failure / timeout" --> R[Retry or degrade]
+    R --> O
+    O --> S[Synthesis<br/>final answer + provenance]
+    O -. budgets, traces .-> LOG[(Observability)]

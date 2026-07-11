@@ -51,7 +51,7 @@ Getting the right context in front of the model.
 
 Persisting and recalling state across turns and sessions.
 
-- ⬜ Conversation (Buffer) Memory
+- ✅ [Conversation (Buffer) Memory](patterns/memory/conversation-memory/)
 - ⬜ Sliding-Window Memory
 - ⬜ Summary Memory
 - ⬜ Long-Term Memory
@@ -73,7 +73,7 @@ Planning, acting, reflecting, and coordinating.
 - ⬜ Reflection / Self-Critique
 - ⬜ Human-in-the-Loop Approval
 - ⬜ Multi-Agent Collaboration
-- ⬜ Orchestrator–Worker
+- ✅ [Orchestrator–Worker](patterns/agents/orchestrator-worker/)
 - ⬜ Supervisor / Router Agent
 - ⬜ Tool Budget
 - ⬜ Retry / Self-Healing
@@ -84,7 +84,7 @@ Planning, acting, reflecting, and coordinating.
 
 Defending against injection, leakage, and abuse.
 
-- ⬜ Prompt Injection Defense
+- ✅ [Prompt Injection Defense](patterns/security/prompt-injection-defense/)
 - ⬜ Secret Isolation
 - ⬜ Tenant Isolation
 - ⬜ PII Redaction
@@ -113,7 +113,7 @@ Budgeting and shaping the context window.
 Measuring quality, regressions, and hallucination.
 
 - ⬜ Golden Dataset
-- ⬜ LLM-as-Judge
+- ✅ [LLM-as-Judge](patterns/evaluation/llm-as-judge/)
 - ⬜ Regression Testing
 - ⬜ Hallucination Detection
 - ⬜ Rubric Scoring

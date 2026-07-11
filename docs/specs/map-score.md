@@ -1,5 +1,10 @@
 # MAP Score — Specification
 
+| | |
+|---|---|
+| **Status** | Implemented |
+| **Owner** | @rajanbor |
+
 MAP Score is a compact, five-dimension rating that sits at the top of a pattern page so a
 reader knows what to expect in a few seconds. It is intentionally small and opinionated.
 

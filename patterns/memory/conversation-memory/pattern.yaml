@@ -1,0 +1,58 @@
+# Machine-readable metadata for the Conversation (Buffer) Memory pattern.
+# See docs/pattern-contract.md for the contract and docs/specs/map-score.md for the score scale.
+id: memory/conversation-memory
+name: Conversation (Buffer) Memory
+category: memory
+slug: conversation-memory
+maturity: established
+also_known_as:
+  - Message history
+  - Chat buffer
+  - Full-history memory
+
+summary: >
+  Replay the running conversation — messages, tool calls, tool results — into every
+  model call from a buffer bounded by an explicit token budget, with an eviction rule
+  that protects the system prompt, recent turns, and tool-call/result atomicity.
+
+# MAP Score — 1..5 per dimension (see docs/specs/map-score.md).
+score:
+  complexity: 2
+  latency: 5
+  cost: 3
+  accuracyImpact: 4
+  productionReadiness: 5
+
+when_to_use:
+  - The product is multi-turn — references like "it" or "as I said" must resolve.
+  - Sessions are bounded (minutes to hours), so a budgeted buffer genuinely covers them.
+  - As the recency layer under summary or long-term memory.
+
+when_not_to_use:
+  - Single-shot workloads with no dialogue state.
+  - Cross-session or very-long-session recall — that is long-term / vector-backed memory, layered on top.
+  - As a channel for bulk documents — retrieval belongs in retrieval, not message history.
+
+related:
+  - memory/sliding-window-memory
+  - memory/summary-memory
+  - memory/long-term-memory
+  - memory/vector-backed-memory
+  - context/context-window-budgeting
+  - context/message-pruning
+  - performance/prompt-cache
+  - retrieval/chunking
+
+references:
+  - https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+  - https://arxiv.org/abs/2307.03172
+  - https://arxiv.org/abs/2310.08560
+  - https://platform.openai.com/docs/guides/conversation-state
+
+# Files present for this pattern (the pattern-contract layer).
+files:
+  - README.md
+  - pattern.yaml
+  - prompt.md
+  - acceptance.md
+  - diagram.mmd

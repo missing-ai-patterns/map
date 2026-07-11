@@ -181,7 +181,7 @@ A pattern PR is ready to merge when:
 
 1. Push your branch and open a PR **into `dev`**.
 2. Fill out the PR template completely, including `Closes #<issue>`.
-3. Automated checks (link-check, formatting) must pass.
+3. Automated checks (branch policy, linked issue, registry build) must pass.
 4. At least one maintainer reviews. Address feedback with additional commits
    (don't force-push over review history unless asked).
 5. A maintainer merges (squash or rebase) into `dev`.
