@@ -13,13 +13,12 @@ workflow jobs):
 |---------------|----------|------------------|
 | `branch-policy` | `.github/workflows/pr-policy.yml` | Base/head branch rules (PRs into `main` come only from `dev`; typed branches into `dev`). |
 | `link-issue` | `.github/workflows/pr-policy.yml` | The PR links an issue (no orphan PRs). |
-| `markdown-link-check` | `.github/workflows/link-check.yml` | No broken Markdown links. |
-| `cli` | `.github/workflows/cli.yml` | CLI typecheck, tests, and `map init` smoke test. |
+| `registry` | `.github/workflows/registry.yml` | The registry builds from ROADMAP.md + `pattern.yaml` files (valid scores, resolvable `related:` ids). |
 
 ## `main` (stable / released)
 
 - ✅ Require a pull request before merging
-- ✅ Require all four status checks above to pass
+- ✅ Require all three status checks above to pass
 - ✅ Enforce for administrators (no direct pushes, even for admins)
 - ✅ Do not allow force pushes or deletions
 - ✅ Only allow PRs into `main` **from `dev`** (enforced by the `branch-policy` check)
@@ -27,7 +26,7 @@ workflow jobs):
 ## `dev` (integration)
 
 - ✅ Require a pull request before merging
-- ✅ Require all four status checks above to pass
+- ✅ Require all three status checks above to pass
 - ✅ Do not allow force pushes or deletions
 
 ## Default branch
