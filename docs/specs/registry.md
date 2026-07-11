@@ -1,5 +1,10 @@
 # MAP Registry Specification (v1)
 
+| | |
+|---|---|
+| **Status** | Implemented |
+| **Owner** | @rajanbor |
+
 The **registry** is the machine-readable form of the MAP catalog: one JSON artifact,
 `registry.json`, compiled from this repository's content and published with every
 release. Tools — the [MAP CLI](https://github.com/missing-ai-patterns/cli), the future

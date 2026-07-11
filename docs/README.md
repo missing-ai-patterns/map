@@ -8,11 +8,16 @@ Start here to understand *how* MAP thinks before diving into the pattern catalog
 - **[Style Guide](style-guide.md)** — tone, formatting, diagrams, and naming conventions.
 - **[Glossary](glossary.md)** — shared vocabulary for AI Engineering terms used across patterns.
 
-Specifications (the contracts tools build on):
+Specifications (the contracts tools build on — see the
+[spec template](specs/_TEMPLATE.md) for how to propose one):
 
 - **[Pattern Contract](pattern-contract.md)** — the files every pattern ships and who consumes them.
-- **[MAP Score](specs/map-score.md)** — the five-dimension 1–5 star rating.
-- **[Registry](specs/registry.md)** — the machine-readable catalog artifact published on each release.
+- **[MAP Score](specs/map-score.md)** — the five-dimension 1–5 star rating. *(implemented)*
+- **[Registry](specs/registry.md)** — the machine-readable catalog artifact published on each release. *(implemented)*
+- **[Pattern Schema](specs/pattern-schema.md)** — the formal, build-enforced schema for `pattern.yaml`. *(draft)*
+- **[Pattern Lifecycle](specs/pattern-lifecycle.md)** — claiming, maturity, deprecation, and renames. *(draft)*
+- **[Decision Guides](specs/decision-guides.md)** — cross-category "X or Y?" guides and their contract. *(draft)*
+- **[Website](specs/website.md)** — the ultra-simple registry-fed site. *(draft)*
 
 For the patterns themselves, see [`../patterns/`](../patterns/). To contribute, see
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md). The `map` CLI lives in
