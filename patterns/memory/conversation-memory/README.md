@@ -178,7 +178,9 @@ fidelity memory and the most expensive one, re-billed on every turn.
 
 Minimal, dependency-free skeleton: an append-only buffer with a token budget and an
 eviction rule that protects the system prompt, the last `keep_recent` turns, and
-tool-call/result atomicity. `count_tokens` is your tokenizer.
+tool-call/result atomicity. `count_tokens` is your tokenizer. A fuller runnable version
+with invariant tests is in
+[`reference/python/memory/conversation-memory/`](../../../reference/python/memory/conversation-memory/).
 
 ```python
 from dataclasses import dataclass, field

@@ -178,8 +178,9 @@ flowchart TB
 
 Minimal, dependency-free splitters. The recursive splitter prefers natural boundaries
 (paragraphs, then lines, then spaces) and only falls back to a hard cut when a piece is
-still too big. A fuller runnable version is in
-[`reference/python/retrieval/chunking/`](../../../reference/python/retrieval/chunking/).
+still too big. Fuller runnable versions (with tests) are in
+[`reference/python/retrieval/chunking/`](../../../reference/python/retrieval/chunking/)
+and [`reference/typescript/retrieval/chunking/`](../../../reference/typescript/retrieval/chunking/).
 
 ```python
 def fixed_size_chunks(text: str, size: int = 800, overlap: int = 100) -> list[str]:
