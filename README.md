@@ -105,8 +105,9 @@ map/
     observability/
   reference/     Layer 3, Reference: small implementations (python, typescript)
   examples/      Layer 3: end-to-end examples that combine several patterns
+  rfcs/          Design documents for changes that shape the MAP standard
+  templates/     Generic prompt.md / acceptance.md skeletons patterns start from
   scripts/       Registry builder: compiles the catalog into registry.json
-  website/       Documentation site (future)
   .github/       Contributor experience: templates, labels, discussions, CI
 ```
 
@@ -130,8 +131,8 @@ The **MAP CLI** lives in its own repository,
 | Tool Calling | Letting models act through tools safely | [`patterns/tool-calling`](patterns/tool-calling/) |
 | Observability | Tracing, logging, cost, and feedback | [`patterns/observability`](patterns/observability/) |
 
-The catalog is empty at launch. See the [Roadmap](ROADMAP.md) for the patterns planned,
-and [CONTRIBUTING.md](CONTRIBUTING.md) to claim one.
+The catalog is growing toward ~75 patterns. See the [Roadmap](ROADMAP.md) for what is
+published and what is planned, and [CONTRIBUTING.md](CONTRIBUTING.md) to claim one.
 
 ## Anatomy of a pattern
 

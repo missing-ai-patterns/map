@@ -49,7 +49,7 @@ flowchart LR
 
 - Cross-link related patterns with relative links.
 - Cite **primary sources** in *References*; number them.
-- Verify links (the link-check CI will catch broken ones).
+- Verify links before opening a PR; broken links surface as reader-facing bugs.
 
 ## Markdown mechanics
 
