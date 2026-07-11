@@ -1,0 +1,11 @@
+%% MAP pattern: evaluation/llm-as-judge — architecture diagram (Mermaid source)
+flowchart LR
+    G[(Golden dataset<br/>+ human labels)] --> C[Calibration<br/>judge vs. human agreement]
+    C -- "tune rubric/prompt" --> J
+    O[Outputs under test] --> J[Judge model<br/>rubric + anchors + reasoning]
+    I[(Inputs & sources<br/>for grounding)] --> J
+    J --> S[Criterion scores + rationale<br/>structured output]
+    S --> A[Aggregate & compare<br/>per-criterion, vs. baseline]
+    A --> R[Report / gate / dashboard]
+    S -. "low-confidence & disagreement cases" .-> H[Human review queue]
+    H -- "new labels" --> G
