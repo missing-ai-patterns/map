@@ -182,6 +182,8 @@ autonomous.
 Minimal, dependency-free skeleton of the two cheapest layers: quarantining untrusted
 content into a marked data block (with marker-forgery neutralized) and screening model
 output for egress violations. Tool gating belongs in your tool layer, not in string code.
+A fuller runnable version with adversarial tests is in
+[`reference/python/security/prompt-injection-defense/`](../../../reference/python/security/prompt-injection-defense/).
 
 ```python
 import re, unicodedata
