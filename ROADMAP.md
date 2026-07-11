@@ -73,7 +73,7 @@ Planning, acting, reflecting, and coordinating.
 - ⬜ Reflection / Self-Critique
 - ⬜ Human-in-the-Loop Approval
 - ⬜ Multi-Agent Collaboration
-- ⬜ Orchestrator–Worker
+- ✅ [Orchestrator–Worker](patterns/agents/orchestrator-worker/)
 - ⬜ Supervisor / Router Agent
 - ⬜ Tool Budget
 - ⬜ Retry / Self-Healing

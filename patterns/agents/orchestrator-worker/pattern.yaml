@@ -1,0 +1,61 @@
+# Machine-readable metadata for the Orchestrator–Worker pattern.
+# See docs/pattern-contract.md for the contract and docs/specs/map-score.md for the score scale.
+id: agents/orchestrator-worker
+name: Orchestrator–Worker
+category: agents
+slug: orchestrator-worker
+maturity: emerging
+also_known_as:
+  - Coordinator–delegate
+  - Lead agent + subagents
+  - Fan-out/fan-in agents
+
+summary: >
+  One privileged orchestrator decomposes a task into bounded sub-tasks, dispatches them
+  to worker agents with isolated contexts and scoped tools (in parallel where possible),
+  validates the structured results, and synthesizes the final answer.
+
+# MAP Score — 1..5 per dimension (see docs/specs/map-score.md).
+score:
+  complexity: 4
+  latency: 2
+  cost: 2
+  accuracyImpact: 4
+  productionReadiness: 3
+
+when_to_use:
+  - The task decomposes into sub-tasks that need each other's results, not each other's reasoning (research N sources, review M files).
+  - A single agent's context fills with intermediate noise (retrieved docs, logs, diffs) before the task completes.
+  - Sub-tasks benefit from different models, tools, prompts, or permission scopes per worker.
+
+when_not_to_use:
+  - A single capable agent finishes the task reliably — orchestration is overhead until context exhaustion or serial latency is the measured failure.
+  - Sub-tasks are tightly coupled and need the previous step's chain of thought, not just its output.
+  - No evaluation harness exists yet — the 3–15x token cost cannot be justified unmeasured.
+
+related:
+  - agents/planner
+  - agents/plan-and-execute
+  - agents/supervisor-router-agent
+  - agents/multi-agent-collaboration
+  - agents/tool-budget
+  - agents/human-in-the-loop-approval
+  - context/context-window-budgeting
+  - evaluation/llm-as-judge
+  - security/prompt-injection-defense
+  - observability/tracing
+
+references:
+  - https://www.anthropic.com/engineering/multi-agent-research-system
+  - https://www.anthropic.com/research/building-effective-agents
+  - https://arxiv.org/abs/2308.08155
+  - https://langchain-ai.github.io/langgraph/concepts/multi_agent/
+  - https://arxiv.org/abs/2503.13657
+
+# Files present for this pattern (the pattern-contract layer).
+files:
+  - README.md
+  - pattern.yaml
+  - prompt.md
+  - acceptance.md
+  - diagram.mmd
