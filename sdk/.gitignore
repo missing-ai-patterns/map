@@ -1,0 +1,16 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+
+# MAP workspaces created by smoke tests
+.map/

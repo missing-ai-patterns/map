@@ -1,0 +1,814 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-11T23:05:31.275Z",
+  "source": {
+    "repository": "https://github.com/missing-ai-patterns/map",
+    "version": "0.5.0"
+  },
+  "categories": [
+    "retrieval",
+    "memory",
+    "agents",
+    "security",
+    "context",
+    "evaluation",
+    "performance",
+    "routing",
+    "tool-calling",
+    "observability"
+  ],
+  "patterns": [
+    {
+      "id": "agents/blackboard",
+      "name": "Blackboard",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/executor",
+      "name": "Executor",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/human-in-the-loop-approval",
+      "name": "Human-in-the-Loop Approval",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/multi-agent-collaboration",
+      "name": "Multi-Agent Collaboration",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/orchestrator-worker",
+      "name": "Orchestrator–Worker",
+      "category": "agents",
+      "status": "published",
+      "summary": "One privileged orchestrator decomposes a task into bounded sub-tasks, dispatches them to worker agents with isolated contexts and scoped tools (in parallel where possible), validates the structured results, and synthesizes the final answer.",
+      "maturity": "emerging",
+      "alsoKnownAs": [
+        "Coordinator–delegate",
+        "Lead agent + subagents",
+        "Fan-out/fan-in agents"
+      ],
+      "score": {
+        "complexity": 4,
+        "latency": 2,
+        "cost": 2,
+        "accuracyImpact": 4,
+        "productionReadiness": 3
+      },
+      "whenToUse": [
+        "The task decomposes into sub-tasks that need each other's results, not each other's reasoning (research N sources, review M files).",
+        "A single agent's context fills with intermediate noise (retrieved docs, logs, diffs) before the task completes.",
+        "Sub-tasks benefit from different models, tools, prompts, or permission scopes per worker."
+      ],
+      "whenNotToUse": [
+        "A single capable agent finishes the task reliably — orchestration is overhead until context exhaustion or serial latency is the measured failure.",
+        "Sub-tasks are tightly coupled and need the previous step's chain of thought, not just its output.",
+        "No evaluation harness exists yet — the 3–15x token cost cannot be justified unmeasured."
+      ],
+      "related": [
+        "agents/planner",
+        "agents/plan-and-execute",
+        "agents/supervisor-router-agent",
+        "agents/multi-agent-collaboration",
+        "agents/tool-budget",
+        "agents/human-in-the-loop-approval",
+        "context/context-window-budgeting",
+        "evaluation/llm-as-judge",
+        "security/prompt-injection-defense",
+        "observability/tracing"
+      ],
+      "references": [
+        "https://www.anthropic.com/engineering/multi-agent-research-system",
+        "https://www.anthropic.com/research/building-effective-agents",
+        "https://arxiv.org/abs/2308.08155",
+        "https://langchain-ai.github.io/langgraph/concepts/multi_agent/",
+        "https://arxiv.org/abs/2503.13657"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — Orchestrator–Worker\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to add an\n> **orchestrator–worker** architecture to an existing agent system. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nRestructure a task that currently overwhelms one agent into a control plane: an\norchestrator that decomposes the goal into bounded, schema-typed sub-tasks, dispatches\nthem to isolated worker agents (parallel where independent), validates the results, and\nsynthesizes the final answer — with budgets, retries, and tracing built in from day one.\n\n## Context\n\n- **Project:** <describe: language, agent runtime/SDK, which LLM(s), how the current\n  single agent is invoked>.\n- **Task to decompose:** <the concrete workload, e.g. \"compare N vendor documents\n  against a checklist\", \"review every file touched by a PR\">.\n- **Evidence orchestration is needed:** <the measured failure: context exhaustion at\n  ~X tokens, serial latency of Y minutes, one bad sub-result poisoning the answer>.\n- **Related MAP pattern:** agents/orchestrator-worker — follow its documented flow and\n  trade-offs.\n\n## Requirements\n\n- **Sub-task spec as a typed object.** Each sub-task carries: objective, inputs, tool\n  scope, budgets (tokens, tool calls, wall clock), and the **output schema** the worker\n  must return. No free-form \"go research X\" dispatches.\n- **Context isolation.** Each worker runs in a fresh context containing only its spec\n  and scoped tools — never the orchestrator's system prompt, other workers' state, or\n  credentials beyond its scope.\n- **Parallel dispatch for independent sub-tasks;** sequential only where a real data\n  dependency exists.\n- **Budgets enforced, not advisory.** A worker that hits its budget returns\n  `status: partial` with whatever it has; it never raises out of the task.\n- **Result validation.** The orchestrator validates every result against the sub-task's\n  schema and treats worker output as **untrusted data** (workers read untrusted\n  content); per sub-task it accepts, retries with a refined spec (bounded retry count),\n  or degrades — proceeding without the result and flagging it in the final answer.\n- **Synthesis with provenance.** The final pass consumes only validated results and\n  attributes claims to the worker/source that produced them.\n- **Tracing.** One task id spans the orchestrator and all workers; log per-worker\n  tokens, tool calls, budget hits, retries, latency, and final status.\n\n## Constraints\n\n- Keep the single-agent path available behind a flag or router — orchestration must be\n  measurable against the baseline, not a replacement for it.\n- Depth limit: orchestrator → workers, one level. Workers do not spawn workers.\n- Worker results cross the boundary as data (JSON per schema), never as instructions\n  or executable content.\n- Budgets, retry counts, and worker model choices live in configuration.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **Multi-agent by default** — shipping this without a measured single-agent failure.\n- **Vague sub-tasks** — dispatching themes instead of bounded objectives with schemas.\n- **Unbounded workers** — any worker without token/step/time budgets.\n- **Trusting worker output** — merging unvalidated results, or letting text returned by\n  a worker trigger tools directly.\n- **Telephone-game depth** — nested worker hierarchies that add a summarization loss\n  per level.\n- **Shared mutable context** — workers writing into each other's windows.\n\n## Suggested steps\n\n1. Write the `SubTask` / `WorkerResult` types (spec, budgets, schema, status) and the\n   validation function.\n2. Extract the worker: a single agent loop that accepts a spec, runs with scoped tools\n   in a fresh context, and returns a schema-shaped result under budget.\n3. Implement the orchestrator: decomposition prompt (or code) → specs → parallel\n   dispatch → collect/validate/retry/degrade → synthesis call with provenance.\n4. Wire budgets and the one-level depth limit; make budget exhaustion produce\n   `partial`, not an exception.\n5. Add tracing: task id propagation, per-worker metrics, final cost/latency summary.\n6. Evaluate against the single-agent baseline on your golden set (quality, latency,\n   tokens). Keep the flag until the numbers justify the default. Verify with\n   [`acceptance.md`](acceptance.md).\n",
+        "acceptance.md": "# Acceptance Criteria — Orchestrator–Worker\n\nHow to verify an Orchestrator–Worker implementation is correct and production-safe.\nUse as a review checklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md)\nand [`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] Every dispatch is a typed sub-task spec: objective, inputs, tool scope, budgets (tokens / tool calls / wall clock), and an output schema.\n- [ ] Workers run in isolated contexts: no orchestrator system prompt, no other worker's state, no credentials beyond the declared tool scope.\n- [ ] Independent sub-tasks execute in parallel; only real data dependencies serialize.\n- [ ] Every worker result is validated against its schema before synthesis; invalid or missing results trigger bounded retry or explicit degradation, never silent inclusion.\n- [ ] The final answer is synthesized only from validated results and attributes claims to their producing worker/source.\n- [ ] The single-agent baseline path still exists (flag or router) for comparison.\n\n## Non-functional requirements\n\n- [ ] **Budgets are enforced:** a worker at its token/step/time limit returns `status: partial`; nothing unwinds the whole task.\n- [ ] **Depth is limited:** orchestrator → worker is one level; workers cannot spawn workers.\n- [ ] **Cost visibility:** per-worker and per-task token counts are recorded; the 3–15× multiplier is a dashboard number, not a surprise.\n- [ ] **Configuration:** budgets, retry counts, and per-worker model/tool choices live in config, not literals.\n\n## Security checks\n\n- [ ] Worker output is treated as untrusted data: schema-validated, never executed, never able to trigger tools directly (see security/prompt-injection-defense).\n- [ ] A worker fed a poisoned document can corrupt at most its own result — an adversarial test proves the injected instruction does not reach synthesis as an instruction.\n- [ ] Tool scopes are least-privilege per worker; a read-only research worker cannot invoke mutating tools (test exists).\n\n## Failure modes\n\n- [ ] **One worker fails/times out** → task completes degraded, with the gap flagged in the answer (test exists).\n- [ ] **All workers fail** → orchestrator returns an explicit failure with per-worker statuses, not a hallucinated synthesis (test exists).\n- [ ] **Worker returns schema-valid nonsense** → provenance in the synthesis lets a reviewer trace any claim back to the worker transcript.\n- [ ] **Looping worker** → wall-clock budget fires; the run is visible in traces with the budget-hit reason.\n\n## Sign-off\n\n- [ ] Evaluated against the single-agent baseline on a golden set: quality, end-to-end latency, and total tokens reported side by side.\n- [ ] Traces for one full run (orchestrator + every worker, one task id) were reviewed by a human.\n"
+      }
+    },
+    {
+      "id": "agents/plan-and-execute",
+      "name": "Plan-and-Execute",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/planner",
+      "name": "Planner",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/react",
+      "name": "ReAct (Reason + Act)",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/reflection-self-critique",
+      "name": "Reflection / Self-Critique",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/retry-self-healing",
+      "name": "Retry / Self-Healing",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/supervisor-router-agent",
+      "name": "Supervisor / Router Agent",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/tool-budget",
+      "name": "Tool Budget",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "agents/tree-of-thoughts",
+      "name": "Tree of Thoughts",
+      "category": "agents",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-ordering",
+      "name": "Context Ordering (lost-in-the-middle)",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-summarization",
+      "name": "Context Summarization",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/context-window-budgeting",
+      "name": "Context Window Budgeting",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/dynamic-context-assembly",
+      "name": "Dynamic Context Assembly",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/few-shot-example-selection",
+      "name": "Few-Shot Example Selection",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/message-pruning",
+      "name": "Message Pruning",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/prompt-compression",
+      "name": "Prompt Compression",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "context/structured-prompting",
+      "name": "Structured Prompting",
+      "category": "context",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/faithfulness-groundedness",
+      "name": "Faithfulness / Groundedness Evaluation",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/golden-dataset",
+      "name": "Golden Dataset",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/hallucination-detection",
+      "name": "Hallucination Detection",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/llm-as-judge",
+      "name": "LLM-as-Judge",
+      "category": "evaluation",
+      "status": "published",
+      "summary": "Grade AI outputs with a judge model anchored to an explicit rubric and calibrated against human labels, so subjective quality becomes a measurable, regression-testable number — while the judge's own biases are measured and controlled.",
+      "maturity": "established",
+      "alsoKnownAs": [
+        "Model-graded evaluation",
+        "AI feedback",
+        "Autorater"
+      ],
+      "score": {
+        "complexity": 3,
+        "latency": 4,
+        "cost": 3,
+        "accuracyImpact": 4,
+        "productionReadiness": 4
+      },
+      "whenToUse": [
+        "The quality that matters is a judgment call (helpfulness, faithfulness, tone) that string matching cannot score.",
+        "Far more outputs need grading than humans can review — regression suites, A/B runs, production sampling.",
+        "A rubric plus a small human-labeled calibration set is affordable."
+      ],
+      "whenNotToUse": [
+        "A deterministic check answers the question (schema validation, exact match, runnable tests).",
+        "No human labels exist — an uncalibrated judge is an opinion generator, not an evaluator.",
+        "A single high-stakes output needs a verdict — judges are statistical instruments for aggregates."
+      ],
+      "related": [
+        "evaluation/golden-dataset",
+        "evaluation/rubric-scoring",
+        "evaluation/pairwise-comparison",
+        "evaluation/regression-testing",
+        "evaluation/faithfulness-groundedness",
+        "observability/eval-dashboards",
+        "security/output-guardrails-filtering"
+      ],
+      "references": [
+        "https://arxiv.org/abs/2306.05685",
+        "https://arxiv.org/abs/2404.18796",
+        "https://arxiv.org/abs/2404.13076",
+        "https://www.anthropic.com/research/statistical-approach-to-model-evals",
+        "https://github.com/openai/evals"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — LLM-as-Judge\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to add\n> **model-graded evaluation** to an existing LLM application. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nBuild a judge pipeline that grades this system's outputs against an anchored rubric,\nis calibrated against human labels with a recorded agreement rate, controls the known\njudge biases, and reports per-criterion aggregates that can gate releases.\n\n## Context\n\n- **Project:** <describe: language, LLM provider(s), what the system produces, where\n  outputs and their inputs/sources can be collected from>.\n- **Quality criteria that matter:** <e.g. faithfulness to retrieved sources,\n  completeness, tone, policy compliance>.\n- **Existing labels:** <how many human-labeled examples exist, or the plan to label\n  50–150 starter cases>.\n- **Related MAP pattern:** evaluation/llm-as-judge — follow its documented flow and\n  bias controls.\n\n## Requirements\n\n- **Anchored rubric.** 3–6 named criteria, each on a small scale (1–4 or binary) with\n  a written anchor per level. The rubric lives in version control next to the eval\n  code.\n- **Judge prompt.** Provides input, sources (for grounded criteria), the output under\n  test, the rubric with anchors, and worked examples. Requires structured output with\n  a quoted-evidence **rationale before the score**, per criterion.\n- **Calibration.** A command that runs the judge over the human-labeled set and\n  reports exact and within-one agreement per criterion. The measured rate is stored\n  with the judge version.\n- **Bias controls.** Judge model + prompt version pinned per experiment; for pairwise\n  mode, both orderings judged and order-flips counted as ties; judge model from a\n  different family than the system under test where possible, otherwise\n  self-preference is measured; verbosity correlation checked.\n- **Aggregation & reporting.** Per-criterion aggregates with confidence intervals,\n  compared against a named baseline run. No single blended score anywhere.\n- **Disagreement routing.** Low-confidence and rubric-edge cases export to a human\n  review queue; new human labels append to the calibration set.\n\n## Constraints\n\n- Judging runs offline / out of the user path (CI, batch); any inline guardrail judge\n  is a separately scoped, latency-budgeted component.\n- Structured judge output is schema-validated; unparseable judge replies are retried\n  once, then counted as judging failures — never as scores.\n- Deterministic checks (schema, exact-match, required-phrase) run *before* the judge\n  and are never delegated to it.\n- Every experiment records: judge model id, prompt version, rubric version, dataset\n  version, and calibration rate.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **Unanchored 1–10 scales** — noise centered on 7.\n- **One blended score** — per-criterion or it hides the regression.\n- **Score before rationale** — invites post-hoc rationalization.\n- **Floating judge version** — provider updates silently re-score history.\n- **Judging faithfulness without sources** — that grades plausibility.\n- **Self-grading feedback loops** — same model generating and judging as the only\n  signal.\n\n## Suggested steps\n\n1. Write the rubric with anchors; review it with the humans who currently judge\n   quality by hand.\n2. Build the judge prompt + structured-output parsing; run it on 10 cases and read\n   every rationale — fix the rubric where the judge's reasoning surprises you.\n3. Label (or collect) the calibration set; implement the agreement command; iterate\n   prompt/rubric until within-one agreement meets your bar (≥ ~90% is common).\n4. Implement aggregation with per-criterion confidence intervals and\n   baseline comparison; wire it to the golden-set regression run in CI.\n5. Add disagreement routing to a human queue and the label-appending loop.\n6. Pin versions, document the calibration rate, and verify with\n   [`acceptance.md`](acceptance.md).\n",
+        "acceptance.md": "# Acceptance Criteria — LLM-as-Judge\n\nHow to verify an LLM-as-Judge implementation is correct and trustworthy. Use as a\nreview checklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md) and\n[`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] The rubric has 3–6 named criteria, each with a written anchor per score level, and lives in version control.\n- [ ] The judge receives input, sources (for grounded criteria), the output under test, the rubric, and worked examples.\n- [ ] Judge output is structured and schema-validated: per criterion, a quoted-evidence rationale followed by the score.\n- [ ] A calibration command reports exact and within-one agreement against the human-labeled set, per criterion.\n- [ ] Reports show per-criterion aggregates with confidence intervals against a named baseline run — no blended single score.\n- [ ] Low-confidence / disagreement cases export to a human review queue, and new labels append to the calibration set.\n\n## Non-functional requirements\n\n- [ ] **Reproducibility:** every run records judge model id, prompt version, rubric version, and dataset version; re-running a pinned experiment reproduces its aggregates.\n- [ ] **Cost:** judge model choice is configuration; the per-run token cost is reported alongside the scores.\n- [ ] **Ordering:** deterministic checks run before the judge and are never delegated to it.\n- [ ] **Fail-honest:** unparseable judge replies count as judging failures, never as scores; the failure rate is visible in the report.\n\n## Bias controls\n\n- [ ] Calibration agreement meets the documented bar (e.g. within-one ≥ 90%) before any gate uses the scores.\n- [ ] Pairwise mode judges both orderings; order-flips are recorded as ties (position bias measured).\n- [ ] The judge model family differs from the system under test, or self-preference has been measured and documented.\n- [ ] Score–length correlation has been checked; verbosity bias is addressed in the rubric or normalization.\n- [ ] Judge model + prompt are pinned per experiment; a version change triggers re-calibration before results are compared.\n\n## Failure modes\n\n- [ ] **Judge provider outage** → eval run fails loudly and is resumable; no silent partial aggregates (test exists).\n- [ ] **Rubric edge case** (output the anchors don't describe) → routed to human review, not force-scored (test exists).\n- [ ] **Distribution collapse** (one score level > ~80% of cases) → flagged in the report as a rubric or judge problem.\n- [ ] **Sources missing for a grounded criterion** → the case is skipped and counted, not judged on plausibility (test exists).\n\n## Sign-off\n\n- [ ] A human read 20+ judge rationales end-to-end and found them faithful to the rubric.\n- [ ] The judge caught a real (or seeded) regression in a golden-set run, per-criterion, before humans did.\n"
+      }
+    },
+    {
+      "id": "evaluation/online-a-b-testing",
+      "name": "Online A/B Testing",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/pairwise-comparison",
+      "name": "Pairwise Comparison",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/regression-testing",
+      "name": "Regression Testing",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/rubric-scoring",
+      "name": "Rubric Scoring",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "evaluation/synthetic-eval-data-generation",
+      "name": "Synthetic Eval-Data Generation",
+      "category": "evaluation",
+      "status": "planned"
+    },
+    {
+      "id": "memory/conversation-memory",
+      "name": "Conversation (Buffer) Memory",
+      "category": "memory",
+      "status": "published",
+      "summary": "Replay the running conversation — messages, tool calls, tool results — into every model call from a buffer bounded by an explicit token budget, with an eviction rule that protects the system prompt, recent turns, and tool-call/result atomicity.",
+      "maturity": "established",
+      "alsoKnownAs": [
+        "Message history",
+        "Chat buffer",
+        "Full-history memory"
+      ],
+      "score": {
+        "complexity": 2,
+        "latency": 5,
+        "cost": 3,
+        "accuracyImpact": 4,
+        "productionReadiness": 5
+      },
+      "whenToUse": [
+        "The product is multi-turn — references like \"it\" or \"as I said\" must resolve.",
+        "Sessions are bounded (minutes to hours), so a budgeted buffer genuinely covers them.",
+        "As the recency layer under summary or long-term memory."
+      ],
+      "whenNotToUse": [
+        "Single-shot workloads with no dialogue state.",
+        "Cross-session or very-long-session recall — that is long-term / vector-backed memory, layered on top.",
+        "As a channel for bulk documents — retrieval belongs in retrieval, not message history."
+      ],
+      "related": [
+        "memory/sliding-window-memory",
+        "memory/summary-memory",
+        "memory/long-term-memory",
+        "memory/vector-backed-memory",
+        "context/context-window-budgeting",
+        "context/message-pruning",
+        "performance/prompt-cache",
+        "retrieval/chunking"
+      ],
+      "references": [
+        "https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching",
+        "https://arxiv.org/abs/2307.03172",
+        "https://arxiv.org/abs/2310.08560",
+        "https://platform.openai.com/docs/guides/conversation-state"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — Conversation (Buffer) Memory\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to add\n> disciplined **conversation memory** to an existing LLM application. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nReplace ad-hoc history handling with a conversation buffer component: message history\n(including tool calls and results) replayed into every model call, bounded by an\nexplicit token budget, with a tested eviction rule — so long conversations degrade\npredictably instead of hitting the context limit.\n\n## Context\n\n- **Project:** <describe: language, LLM provider, chat vs. agent loop, how history is\n  currently kept (in-memory list? DB? nothing?), session lifetime and storage>.\n- **Model window & budget:** <model context size; how much is reserved for system\n  prompt, retrieved context, and the response>.\n- **Symptoms today:** <e.g. \"context_length_exceeded on long sessions\", \"bot forgets\n  constraints mid-conversation\", \"cost grows per turn\">.\n- **Related MAP pattern:** memory/conversation-memory — follow its documented flow.\n\n## Requirements\n\n- **Buffer as a component.** One class/module owns the per-session message sequence\n  (user, assistant, tool call, tool result), with persistence matching session\n  lifetime and a TTL/deletion path.\n- **Explicit token budget.** A configured slice of the context window is reserved for\n  history; token counts come from the real tokenizer, not character heuristics.\n- **Eviction by rule.** When over budget, evict oldest-first, with three invariants:\n  the system prompt is never evicted; the last *k* messages are never evicted;\n  tool-call/result pairs are evicted atomically (no orphans).\n- **Everything appended.** Assistant tool calls and their results enter the buffer as\n  they happen; the rendered history reconstructs the exact dialogue.\n- **Observable eviction.** Eviction events are logged with what was dropped (count,\n  roles, token totals); a hook exposes evicted messages so summary memory can be\n  layered on later without redesign.\n- **Stable rendering.** Within a session the rendered prefix is append-only and\n  byte-stable (prompt-cache friendly); no reordering or rewriting of past turns.\n\n## Constraints\n\n- No extra model calls in this pattern (summarization is a separate, later pattern).\n- Session boundaries reset the buffer; cross-session memory is out of scope here.\n- Budget, `keep_recent`, and TTL are configuration, not literals.\n- Do not route documents through the buffer — retrieval stays retrieval.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **No budget until the API errors** — the exception is not an eviction policy.\n- **Evicting the system prompt** or the most recent turns.\n- **Orphaned tool messages** — dropping a call but keeping its result, or vice versa.\n- **`len(text)/4` token math** — drifts badly on code and non-English text.\n- **Rewriting history per turn** — breaks prompt caching and reproducibility.\n- **Buffers that never expire** — unbounded PII and storage accumulation.\n\n## Suggested steps\n\n1. Introduce the `ConversationBuffer` type (messages, budget, `keep_recent`,\n   tool-pair links) and route all history reads/writes through it.\n2. Wire real tokenizer counts; set the budget from the model window minus the\n   declared reservations (system prompt, retrieval, response headroom).\n3. Implement `render()` with the three eviction invariants; unit-test each invariant,\n   including the orphaned-tool-pair case.\n4. Add eviction logging and the evicted-messages hook.\n5. Add session TTL/deletion; verify restart behavior matches session semantics.\n6. Test a long synthetic conversation: cost per turn flattens at the budget, the\n   system prompt survives, and the model still resolves recent references. Verify\n   with [`acceptance.md`](acceptance.md).\n",
+        "acceptance.md": "# Acceptance Criteria — Conversation (Buffer) Memory\n\nHow to verify a Conversation Memory implementation is correct and production-safe.\nUse as a review checklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md)\nand [`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] All history reads/writes go through one buffer component; no handler keeps its own message list.\n- [ ] The buffer records user, assistant, tool-call, and tool-result messages; the rendered history reconstructs the dialogue exactly.\n- [ ] A configured token budget bounds rendered history; counts come from the model's tokenizer.\n- [ ] Eviction is oldest-first with invariants: system prompt never evicted; last *k* messages never evicted; tool-call/result pairs evicted atomically.\n- [ ] Multi-turn references resolve: a scripted conversation where turn *n* depends on turn *n−2* passes.\n- [ ] Session boundaries reset the buffer; sessions have a TTL and a deletion path.\n\n## Non-functional requirements\n\n- [ ] **Cost:** tokens per turn flatten at the budget in a long synthetic conversation (measured, not assumed).\n- [ ] **Cache-friendliness:** within a session the rendered prefix is append-only and byte-stable across turns.\n- [ ] **Determinism:** given the same buffer state, `render()` is a pure function.\n- [ ] **Configuration:** budget, `keep_recent`, and TTL are config values.\n\n## Correctness checks\n\n- [ ] Eviction of a message with a tool pair removes both halves (test exists for the orphan case).\n- [ ] A conversation exactly at the budget boundary renders without eviction; one token over evicts exactly one atomic unit (boundary test exists).\n- [ ] The system prompt survives any conversation length (test drives the buffer to 10× budget).\n- [ ] Non-ASCII and code-heavy content is counted with the tokenizer (a test would fail under `len/4` heuristics).\n\n## Failure modes\n\n- [ ] **Eviction drops a load-bearing fact** → the event is logged with what was dropped, and the evicted-messages hook exposes it (the summary-memory seam exists).\n- [ ] **Oversized single message** (bigger than the whole budget) → rejected or truncated explicitly at append time, not at render time (test exists).\n- [ ] **Store unavailable** (for persisted sessions) → the turn fails explicitly; no silent fresh-buffer amnesia.\n\n## Sign-off\n\n- [ ] A real long session was replayed end-to-end: per-turn token counts, eviction events, and answer quality reviewed by a human.\n- [ ] The upgrade path is documented: which signal (eviction losses) will trigger adding summary/long-term memory.\n"
+      }
+    },
+    {
+      "id": "memory/entity-memory",
+      "name": "Entity Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/episodic-memory",
+      "name": "Episodic Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/knowledge-graph-memory",
+      "name": "Knowledge-Graph Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/long-term-memory",
+      "name": "Long-Term Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/memory-consolidation-forgetting",
+      "name": "Memory Consolidation & Forgetting",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/semantic-memory",
+      "name": "Semantic Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/sliding-window-memory",
+      "name": "Sliding-Window Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/summary-memory",
+      "name": "Summary Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "memory/vector-backed-memory",
+      "name": "Vector-Backed Memory",
+      "category": "memory",
+      "status": "planned"
+    },
+    {
+      "id": "observability/audit-trails",
+      "name": "Audit Trails",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/drift-detection",
+      "name": "Drift Detection",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/eval-dashboards",
+      "name": "Eval Dashboards",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/feedback-collection",
+      "name": "Feedback Collection",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/latency-monitoring",
+      "name": "Latency Monitoring",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/prompt-completion-logging",
+      "name": "Prompt & Completion Logging",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/token-cost-tracking",
+      "name": "Token & Cost Tracking",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "observability/tracing",
+      "name": "Tracing / Spans",
+      "category": "observability",
+      "status": "planned"
+    },
+    {
+      "id": "performance/model-cascade",
+      "name": "Model Cascade (cheap-first)",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/parallel-fan-out-retrieval",
+      "name": "Parallel / Fan-out Retrieval",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/prompt-cache",
+      "name": "Prompt Cache",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/request-batching",
+      "name": "Request Batching",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/response-cache",
+      "name": "Response Cache",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/speculative-execution",
+      "name": "Speculative Execution",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/streaming",
+      "name": "Streaming",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "performance/token-budget-optimization",
+      "name": "Token-Budget Optimization",
+      "category": "performance",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/chunking",
+      "name": "Chunking",
+      "category": "retrieval",
+      "status": "published",
+      "summary": "Split documents into smaller, self-contained units so retrieval can find and return the right passage instead of a whole document.",
+      "maturity": "established",
+      "alsoKnownAs": [
+        "Text splitting",
+        "Document segmentation"
+      ],
+      "score": {
+        "complexity": 2,
+        "latency": 5,
+        "cost": 5,
+        "accuracyImpact": 5,
+        "productionReadiness": 5
+      },
+      "whenToUse": [
+        "Building RAG over documents longer than a paragraph or two.",
+        "Unstructured or semi-structured text with exploitable internal structure.",
+        "You need granular, citable retrieval of a specific passage."
+      ],
+      "whenNotToUse": [
+        "The unit is already the right size (rows, FAQ pairs, short notes).",
+        "The task needs the whole document at once (full-doc summarization).",
+        "Tabular/relational data — use structured filtering, not text chunking."
+      ],
+      "related": [
+        "retrieval/parent-child-retrieval",
+        "retrieval/sentence-window-retrieval",
+        "retrieval/contextual-retrieval",
+        "retrieval/late-chunking",
+        "retrieval/reranking",
+        "retrieval/metadata-filtering"
+      ],
+      "references": [
+        "https://arxiv.org/abs/2005.11401",
+        "https://arxiv.org/abs/2307.03172"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — Chunking\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to implement\n> document **Chunking** correctly in an existing project. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nImplement a chunking step that splits documents into retrievable units for a RAG pipeline,\nso retrieval returns precise, citable passages — not whole documents and not broken\nfragments.\n\n## Context\n\n- **Project:** <describe: language, existing ingestion/embedding pipeline, vector store>.\n- **Current state:** <e.g. \"we embed whole documents\" or \"we split every 500 characters\">.\n- **Related MAP pattern:** retrieval/chunking — follow its documented trade-offs.\n\n## Requirements\n\n- Split each document into chunks sized to the embedding model's budget (size by **tokens**,\n  not raw characters, when possible).\n- Prefer **natural boundaries**: headings/sections → paragraphs → sentences → words. Only\n  hard-cut as a last resort.\n- Support a small **overlap** between adjacent chunks (configurable; default ~10%).\n- Attach **metadata** to every chunk: source id, title, heading path, and position/index.\n- Choose the strategy by **document type** (prose vs Markdown/HTML vs code), not one global rule.\n\n## Constraints\n\n- Deterministic and dependency-light; don't pull in a heavy framework just to split text.\n- Configurable chunk size, overlap, and strategy — no magic numbers hard-coded in call sites.\n- Must handle empty input, very long unbreakable tokens, and documents smaller than one chunk.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **Naive fixed-character splitting** as the only strategy — it cuts words and facts in half.\n- **Breaking semantic boundaries** — don't split mid-sentence or mid-clause when a nearby\n  natural boundary exists.\n- **Splitting code blocks incorrectly** — keep fenced code blocks and, ideally, whole\n  functions/classes together; never cut through a code block by character count.\n- **Ignoring document structure** — use Markdown/HTML headings; carry the heading path into\n  chunk metadata instead of throwing structure away.\n- **One chunking strategy for every document type** — prose, Markdown, and source code need\n  different boundaries; make the strategy selectable per input.\n\n## Architecture expectations\n\n- A `Chunker` interface with pluggable strategies (recursive/structure-aware/token-aware),\n  selected by document type — so strategies are replaceable and testable in isolation.\n- Chunking is a pure transformation (document in, chunks+metadata out); no embedding or I/O\n  mixed in.\n- Output a typed `Chunk { text, index, source, metadata }`, ready for embedding.\n\n## Security considerations\n\n- Treat document content as **untrusted**: chunk text may later reach a model, so this step\n  must not execute or interpret content, only segment it.\n- Preserve any access-control metadata (tenant/document ACLs) onto each chunk so downstream\n  retrieval can filter on it.\n\n## Acceptance criteria\n\nSatisfy [`acceptance.md`](acceptance.md). In short: correct boundaries, configurable\nsize/overlap/strategy, metadata attached, structure and code respected, edge cases handled,\nand tests covering all of it.\n\n## Test expectations\n\n- Unit tests for: recursive boundary selection, overlap, token vs character sizing,\n  Markdown heading awareness, code-block integrity, and the edge cases above.\n- Deterministic; runs in CI.\n\n---\n\n*MAP gives you the architectural guardrails for chunking; you still implement and verify the\ncode. Prefer the documented trade-offs (size vs precision, overlap vs cost) over guesswork —\nand measure chunk size on your own corpus rather than copying a number.*\n",
+        "acceptance.md": "# Acceptance Criteria — Chunking\n\nHow to verify a Chunking implementation is correct and production-safe. Use as a review\nchecklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md) and\n[`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] Splits a document into chunks sized to a configurable target (by tokens when possible).\n- [ ] Prefers natural boundaries (heading → paragraph → sentence → word); hard-cut is a last resort.\n- [ ] Supports configurable **overlap** between adjacent chunks.\n- [ ] Attaches metadata to every chunk: `source`, `index/position`, and `heading path` where available.\n- [ ] Strategy is selectable per **document type** (prose / Markdown-HTML / code).\n\n## Non-functional requirements\n\n- [ ] **Latency:** chunking a typical document is fast (milliseconds, not seconds).\n- [ ] **Cost:** no unnecessary model calls; splitting itself is local/cheap.\n- [ ] **Maintainability:** a `Chunker` interface with pluggable strategies; no hard-coded magic numbers in call sites.\n- [ ] **Determinism:** same input + config → same chunks.\n\n## Security checks\n\n- [ ] Chunk text is only segmented, never executed or interpreted.\n- [ ] Access-control metadata (tenant/document ACLs) is preserved onto each chunk for downstream filtering.\n- [ ] No secrets/PII added to logs during chunking.\n\n## Failure modes\n\n- [ ] **Empty/whitespace input** → returns no chunks (no crash).\n- [ ] **Document smaller than one chunk** → returns a single chunk.\n- [ ] **Unbreakable token longer than the size** → degrades to a hard cut rather than looping/erroring.\n- [ ] **Code blocks** → not split by character count mid-block.\n- [ ] **Missing headings/structure** → still produces valid chunks (falls back gracefully).\n\n## Tests\n\n- [ ] Unit tests for boundary selection, overlap, token vs character sizing, Markdown heading awareness, and code-block integrity.\n- [ ] All failure modes above are tested.\n- [ ] Deterministic; runs in CI.\n\n## Review checklist\n\n- [ ] Doesn't silently reduce to naive fixed-character splitting.\n- [ ] Anti-patterns in `prompt.md` are avoided (semantic boundaries, code blocks, structure, per-type strategy).\n- [ ] Chunk size / overlap / strategy are configurable.\n- [ ] Chunk size was (or can be) tuned against the actual corpus, not copied from a blog.\n"
+      }
+    },
+    {
+      "id": "retrieval/contextual-compression",
+      "name": "Contextual Compression",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/contextual-retrieval",
+      "name": "Contextual Retrieval (chunk-level context prefixing)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/graph-rag",
+      "name": "Graph RAG",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hierarchical-recursive-retrieval",
+      "name": "Hierarchical / Recursive Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hybrid-search",
+      "name": "Hybrid Search (dense + sparse)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/hyde",
+      "name": "HyDE (Hypothetical Document Embeddings)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/late-chunking",
+      "name": "Late Chunking",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/metadata-filtering",
+      "name": "Metadata Filtering",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/multi-query-retrieval",
+      "name": "Multi-Query Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/parent-child-retrieval",
+      "name": "Parent-Child (Small-to-Big) Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/reranking",
+      "name": "Reranking (cross-encoder)",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/self-query-retrieval",
+      "name": "Self-Query Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/semantic-cache",
+      "name": "Semantic Cache",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "retrieval/sentence-window-retrieval",
+      "name": "Sentence-Window Retrieval",
+      "category": "retrieval",
+      "status": "planned"
+    },
+    {
+      "id": "routing/complexity-based-routing",
+      "name": "Complexity-Based Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/cost-based-routing",
+      "name": "Cost-Based Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/fallback-routing",
+      "name": "Fallback Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/intent-routing",
+      "name": "Intent Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/load-balancing-multiplexing",
+      "name": "Load Balancing / Multiplexing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/model-routing",
+      "name": "Model Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "routing/semantic-routing",
+      "name": "Semantic Routing",
+      "category": "routing",
+      "status": "planned"
+    },
+    {
+      "id": "security/content-moderation",
+      "name": "Content Moderation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/input-validation",
+      "name": "Input Validation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/least-privilege-tool-access",
+      "name": "Least-Privilege Tool Access",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/output-guardrails-filtering",
+      "name": "Output Guardrails / Filtering",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/pii-redaction",
+      "name": "PII Redaction",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/prompt-injection-defense",
+      "name": "Prompt Injection Defense",
+      "category": "security",
+      "status": "published",
+      "summary": "Treat all untrusted text reaching the model — user input, retrieved documents, tool results — as data that may contain hostile instructions, and layer defenses so those instructions cannot become actions.",
+      "maturity": "emerging",
+      "alsoKnownAs": [
+        "Indirect prompt injection mitigation",
+        "Instruction/data separation"
+      ],
+      "score": {
+        "complexity": 3,
+        "latency": 4,
+        "cost": 4,
+        "accuracyImpact": 3,
+        "productionReadiness": 4
+      },
+      "whenToUse": [
+        "Untrusted content flows into prompts (RAG documents, uploads, emails, web pages, tool output).",
+        "The model can call tools or trigger actions with real-world consequences.",
+        "Model output is shown to other users or consumed by downstream systems."
+      ],
+      "whenNotToUse": [
+        "Every token the model sees is operator-authored — no user input, retrieval, or tools.",
+        "Output is fully sandboxed and never executed, shown to others, or trusted downstream.",
+        "As a substitute for least-privilege design — guards complement capability limits, never replace them."
+      ],
+      "related": [
+        "security/input-validation",
+        "security/output-guardrails-filtering",
+        "security/least-privilege-tool-access",
+        "security/sandboxing",
+        "tool-calling/confirmation-gated-tools",
+        "evaluation/llm-as-judge"
+      ],
+      "references": [
+        "https://arxiv.org/abs/2302.12173",
+        "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "https://simonwillison.net/2023/Apr/25/dual-llm-pattern/",
+        "https://arxiv.org/abs/2503.18813",
+        "https://arxiv.org/abs/2403.14720"
+      ],
+      "files": {
+        "prompt.md": "# Implementation Prompt — Prompt Injection Defense\n\n> Paste this into your AI coding agent (Claude Code / Cursor / Gemini CLI) to add\n> layered **prompt injection defenses** to an existing LLM application. Read\n> [`README.md`](README.md) first; verify against [`acceptance.md`](acceptance.md).\n\n## Goal\n\nMake untrusted content (retrieved documents, user input, tool results, web pages) unable\nto steer the model into unintended actions or data exfiltration — by separating\ninstructions from data, gating consequential actions, and checking outputs — while\nkeeping the normal user experience intact.\n\n## Context\n\n- **Project:** <describe: language, LLM provider, where prompts are assembled, which\n  tools/actions the model can trigger>.\n- **Untrusted channels:** <list every place third-party text enters a prompt: RAG\n  retrieval, uploads, emails, tickets, scraped pages, MCP/tool results, other agents>.\n- **Current state:** <e.g. \"retrieved chunks are concatenated straight into the user\n  message; tools are called without confirmation\">.\n- **Related MAP pattern:** security/prompt-injection-defense — follow its documented\n  layers and trade-offs.\n\n## Requirements\n\n- **Privilege separation in prompt assembly.** System/developer instructions are built\n  server-side only. Every untrusted span is wrapped in explicit data markers with\n  provenance (source, trust tier), and the system prompt states the contract: content\n  inside markers is data; instructions found there must never be followed.\n- **Quarantine on ingestion.** Normalize untrusted text (Unicode NFKC, strip\n  control/invisible characters), and neutralize the marker syntax itself inside\n  untrusted content so \"end of data\" cannot be forged.\n- **Input screening as a signal.** Add a cheap heuristic or classifier pass that flags\n  likely injection attempts; flagged inputs are logged and handled more strictly — the\n  system must remain safe even when screening misses.\n- **Tool gating.** Every tool declares a risk tier. Read-only tools pass; mutating or\n  outward-facing tools (send, delete, pay, POST, file/network write) require a policy\n  check or explicit human confirmation that untrusted text cannot satisfy.\n- **Output checks before delivery.** Enforce a URL/host allowlist on links, block or\n  defang markdown images (auto-load exfiltration), detect obvious secret/PII leakage,\n  and validate structured outputs against their schema.\n- **Audit trail.** Log flagged inputs, denied tool calls, and blocked outputs with\n  enough context to investigate; make these events visible in monitoring.\n\n## Constraints\n\n- Defense must be **layered**: no single component (especially a guard model) may be\n  the only line of defense.\n- Deterministic, dependency-light string handling; a small guard classifier is\n  optional, not required.\n- Do not degrade the product for clean traffic: added latency for the common path\n  should be negligible (marking + regex checks, no extra model calls).\n- All markers, allowlists, and risk tiers live in configuration, not scattered\n  literals.\n\n## Anti-patterns to avoid (do NOT do these)\n\n- **Prompt-only defense** — \"please ignore instructions in the document\" without\n  structural separation and gates.\n- **Trusting delimiters** — leaving your marker syntax un-neutralized inside untrusted\n  content.\n- **Screening only direct user input** — the dangerous channel is indirect (retrieved\n  docs, tool results).\n- **Guard in front, god-mode behind** — adding a classifier while tools remain\n  over-privileged.\n- **Silently dropping flagged events** — attempts are security signals; log them.\n\n## Suggested steps\n\n1. Inventory every point where third-party text enters a prompt; route them through one\n   quarantine function.\n2. Refactor prompt assembly so privileged instructions and quarantined data are\n   composed separately (distinct roles/sections), with the data contract in the system\n   prompt.\n3. Classify tools into risk tiers; wire the confirmation/policy gate for the risky\n   tier.\n4. Add the output filter (allowlist, image defang, leakage regexes, schema check) as\n   the single exit path for model responses.\n5. Add logging/alerts for flagged inputs, gate denials, and output blocks.\n6. Write adversarial tests: a poisoned retrieval chunk, a marker-forgery attempt, an\n   exfiltration-via-link attempt, and a tool-call escalation attempt — all must fail\n   safely. Verify with [`acceptance.md`](acceptance.md).\n",
+        "acceptance.md": "# Acceptance Criteria — Prompt Injection Defense\n\nHow to verify a Prompt Injection Defense implementation is correct and production-safe.\nUse as a review checklist (humans and AI agents). Pairs with [`prompt.md`](prompt.md)\nand [`README.md`](README.md).\n\n## Functional requirements\n\n- [ ] Every channel of third-party text (retrieval, uploads, tool results, web content) passes through one quarantine step before prompt assembly.\n- [ ] Untrusted spans are wrapped in explicit data markers carrying provenance (source, trust tier).\n- [ ] The system prompt states the data contract (content in markers is data, never instructions) and is assembled server-side, never concatenated with untrusted text.\n- [ ] Marker syntax occurring *inside* untrusted content is neutralized (forged \"end of data\" is inert).\n- [ ] Tools are classified by risk tier; mutating/outward-facing tools require a policy check or human confirmation.\n- [ ] Model responses pass an output filter: URL/host allowlist, markdown-image defang, secret/PII leakage checks, schema validation for structured output.\n\n## Non-functional requirements\n\n- [ ] **Latency:** the common clean path adds no extra model calls; marking + output checks are milliseconds.\n- [ ] **Maintainability:** markers, allowlists, and tool risk tiers are configuration, not scattered string literals.\n- [ ] **Determinism:** quarantine and output filtering are pure functions of input + config.\n- [ ] **Fail-closed:** if the output filter or tool gate errors, the action/response is blocked, not passed through.\n\n## Security checks\n\n- [ ] A retrieved document containing \"ignore previous instructions…\" is reported as content, not obeyed (adversarial test exists).\n- [ ] A document that forges the data-close marker cannot escape quarantine (test exists).\n- [ ] An answer linking to a non-allowlisted host is blocked or defanged (test exists).\n- [ ] A tool-escalation attempt originating from untrusted content is denied by the gate and logged (test exists).\n- [ ] Input normalization strips invisible/control Unicode (homoglyph & zero-width tricks covered by a test).\n- [ ] Flagged inputs, gate denials, and blocked outputs are logged with provenance and surfaced in monitoring.\n\n## Failure modes\n\n- [ ] **Guard/classifier unavailable** → system degrades to structural defenses (marking + gates + output filter), never to \"open\".\n- [ ] **Legitimate content that looks like an attack** (e.g. an article *about* prompt injection) → flagged path still answers, with stricter handling; no hard user-facing failure.\n- [ ] **Oversized/garbage untrusted input** → quarantine truncates/rejects without crashing prompt assembly.\n\n## Sign-off\n\n- [ ] The adversarial test set (poisoned chunk, marker forgery, link exfiltration, tool escalation) runs in CI.\n- [ ] Someone tried to break it on purpose and the attempts are documented.\n"
+      }
+    },
+    {
+      "id": "security/rate-limiting-abuse-prevention",
+      "name": "Rate Limiting & Abuse Prevention",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/sandboxing",
+      "name": "Sandboxing (tool & code execution)",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/secret-isolation",
+      "name": "Secret Isolation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "security/tenant-isolation",
+      "name": "Tenant Isolation",
+      "category": "security",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/basic-tool-calling",
+      "name": "Basic Tool Calling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/confirmation-gated-tools",
+      "name": "Confirmation-Gated Tools",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/dynamic-tool-loading",
+      "name": "Dynamic Tool Loading",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/parallel-tool-calls",
+      "name": "Parallel Tool Calls",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/structured-output-function-calling",
+      "name": "Structured Output / Function Calling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-error-handling",
+      "name": "Tool Error Handling",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-result-validation",
+      "name": "Tool Result Validation",
+      "category": "tool-calling",
+      "status": "planned"
+    },
+    {
+      "id": "tool-calling/tool-selection-filtering",
+      "name": "Tool Selection / Filtering",
+      "category": "tool-calling",
+      "status": "planned"
+    }
+  ]
+}
