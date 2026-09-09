@@ -36,7 +36,7 @@ jobs:
       - run: pnpm build
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test:coverage
+      - run: pnpm test
       - name: Smoke-test the built CLI
         run: |
           node packages/cli/dist/map.js --help
@@ -45,4 +45,3 @@ jobs:
           node packages/cli/dist/map.js add retrieval/chunking
           test -f .map/patterns/retrieval/chunking/prompt.md
           node packages/cli/dist/map.js doctor
-
