@@ -58,7 +58,7 @@ flowchart TD
 
 ## Future CLI direction
 
-As the [MAP CLI](https://github.com/missing-ai-patterns/cli) grows, an agent could pull structured pattern context directly:
+As the [MAP CLI](https://github.com/rajanbor/map/tree/main/sdk) grows, an agent could pull structured pattern context directly:
 
 ```bash
 map explain retrieval.chunking      # what the pattern is and when to use it
@@ -67,7 +67,7 @@ map recommend                       # patterns missing from the detected archite
 ```
 
 This turns MAP from documentation an agent *reads* into an architecture layer an agent
-*queries* — the direction described in the CLI [vision document](https://github.com/missing-ai-patterns/cli/blob/main/docs/vision.md).
+*queries* — the direction described in the CLI [vision document](https://github.com/rajanbor/map/blob/main/sdk/docs/vision.md).
 
 ## The long-term vision
 

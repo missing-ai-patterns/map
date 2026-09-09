@@ -1,10 +1,10 @@
 # MAP Website
 
-The ultra-simple site for [MAP — Missing AI Patterns](https://github.com/missing-ai-patterns/map):
+The ultra-simple site for [MAP — Missing AI Patterns](https://github.com/rajanbor/map):
 a hero with the install command, what MAP is, the pattern catalog, one worked example,
-and pointers into the docs. Spec: [`docs/specs/website.md` in the map repo](https://github.com/missing-ai-patterns/map/blob/main/docs/specs/website.md).
+and pointers into the docs. Spec: [`patterns/docs/specs/website.md`](https://github.com/rajanbor/map/blob/main/patterns/docs/specs/website.md).
 
-**Live:** <https://missing-ai-patterns.github.io/website/>
+**Live:** <https://rajanbor.github.io/map/>
 
 ## How it works
 
@@ -29,4 +29,4 @@ the previous deploy; an empty catalog is never published.
 ## License
 
 MIT. The catalog content the site renders is CC BY 4.0 (see
-[LICENSING in the map repo](https://github.com/missing-ai-patterns/map/blob/main/LICENSING.md)).
+[LICENSING in the map repo](https://github.com/rajanbor/map/blob/main/patterns/LICENSING.md)).

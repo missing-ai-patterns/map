@@ -3,13 +3,13 @@
 | | |
 |---|---|
 | **Status** | Draft |
-| **Issue** | [#77](https://github.com/missing-ai-patterns/map/issues/77) |
+| **Issue** | [#77](https://github.com/rajanbor/map/issues/77) |
 | **Owner** | @rajanbor |
 
 ## Summary
 
 An **ultra-simple, readable** site for MAP in its own repository
-(`missing-ai-patterns/website`): a hero with the install command, a short "what is
+(`website/` in `rajanbor/map`): a hero with the install command, a short "what is
 MAP", the pattern catalog rendered from the published registry, a worked example, and
 pointers into the docs. Static, no framework, no build complexity — the site is a
 projection of `registry.json`, the same artifact every other tool consumes.
@@ -25,11 +25,11 @@ link we share.
 
 ## Design
 
-**Repository** — `missing-ai-patterns/website`, deployed with GitHub Pages from CI.
+**Repository** — `website/` in `rajanbor/map`, deployed with GitHub Pages from CI.
 
 **Stack** — plain HTML + one CSS file + a small build script (Node, no dependencies —
 same discipline as `scripts/build-registry.ts`) that fetches
-`https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json`
+`https://github.com/rajanbor/map/releases/latest/download/registry.json`
 at build time and renders the catalog section. No client-side framework; the page
 works with JavaScript disabled.
 
@@ -64,7 +64,7 @@ analytics. The [decision guides spec](decision-guides.md) feeds a later v2.
 
 ## Acceptance criteria
 
-- [ ] The site deploys from `missing-ai-patterns/website` via Pages and renders hero, what-is, catalog (from the latest registry), example, and docs links.
+- [ ] The site deploys from `website/` in `rajanbor/map` via Pages and renders hero, what-is, catalog (from the latest registry), example, and docs links.
 - [ ] A map release updates the catalog section without manual intervention.
 - [ ] Lighthouse: no client-side JS required for content; page readable on mobile.
 

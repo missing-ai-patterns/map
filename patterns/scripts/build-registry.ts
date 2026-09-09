@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SCHEMA_VERSION = 1;
-const REPOSITORY_URL = "https://github.com/missing-ai-patterns/map";
+const REPOSITORY_URL = "https://github.com/rajanbor/map";
 
 /** Roadmap section headings → pattern categories (mirrors `patterns/`). */
 const CATEGORY_HEADINGS: Readonly<Record<string, string>> = {

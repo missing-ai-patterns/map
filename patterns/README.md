@@ -112,7 +112,7 @@ map/
 ```
 
 The **MAP CLI** lives in its own repository,
-[missing-ai-patterns/cli](https://github.com/missing-ai-patterns/cli). It consumes the
+[missing-ai-patterns/cli](https://github.com/rajanbor/map/tree/main/sdk). It consumes the
 **registry** — the machine-readable catalog this repository publishes with every release
 (see the [registry spec](docs/specs/registry.md)).
 
@@ -164,7 +164,7 @@ MAP does not replace your coding agent — it gives the agent better **architect
 and guardrails, so its decisions are consistent and reviewable. See the
 [Claude Code example](examples/claude-code/).
 
-The [MAP CLI](https://github.com/missing-ai-patterns/cli) surfaces this directly:
+The [MAP CLI](https://github.com/rajanbor/map/tree/main/sdk) surfaces this directly:
 
 ```bash
 npm install -g @missing-ai-patterns/cli
@@ -214,7 +214,7 @@ backlog and phases.
 ## Where MAP is heading
 
 Documentation is the first form of MAP, not the last. The longer-term plan, sketched in
-the CLI's [vision document](https://github.com/missing-ai-patterns/cli/blob/main/docs/vision.md),
+the CLI's [vision document](https://github.com/rajanbor/map/blob/main/sdk/docs/vision.md),
 is to grow MAP into an architecture layer for AI engineering, backed by a structured
 knowledge graph of patterns rather than Markdown alone. The first pieces exist today:
 the [registry](docs/specs/registry.md) and the working `map` CLI.
@@ -247,7 +247,7 @@ Nearer-term product goals:
 MAP uses two licenses so it's easy to build on while authorship stays credited:
 
 - **Code** (`reference/`, `examples/`, `scripts/`, and the
-  [CLI repository](https://github.com/missing-ai-patterns/cli)) — [MIT](LICENSE). Use,
+  [CLI repository](https://github.com/rajanbor/map/tree/main/sdk)) — [MIT](LICENSE). Use,
   copy, modify, fork, ship commercially; just keep the copyright notice.
 - **Content** (`patterns/`, `docs/`, prose, diagrams) — [CC BY 4.0](LICENSE-CONTENT).
   Use, share, and adapt freely, including commercially, **with attribution** to MAP.

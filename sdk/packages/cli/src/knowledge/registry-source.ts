@@ -28,7 +28,7 @@ import { parseRegistry } from "./registry.ts";
  * point at a local file or a URL.)
  */
 const FALLBACK_REGISTRY_URL =
-  "https://github.com/missing-ai-patterns/patterns/releases/latest/download/registry.json";
+  "https://github.com/rajanbor/map/releases/latest/download/registry.json";
 
 /** Resolve the published registry URL, honouring the `MAP_REGISTRY_URL` override. */
 export function defaultRegistryUrl(

@@ -1,7 +1,7 @@
 # RFC-0001: The MAP Standard
 
 - **Status:** draft
-- **Issue:** [#63](https://github.com/missing-ai-patterns/map/issues/63)
+- **Issue:** [#63](https://github.com/rajanbor/map/issues/63)
 - **Builds on:** the registry ([docs/specs/registry.md](../docs/specs/registry.md)), the
   `.map/` v2 workspace shipped by the CLI, and the pattern catalog.
 

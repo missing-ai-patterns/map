@@ -6,10 +6,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/missing-ai-patterns/sdk.git",
+    "url": "git+https://github.com/rajanbor/map.git",
     "directory": "packages/score"
   },
-  "homepage": "https://github.com/missing-ai-patterns/patterns",
+  "homepage": "https://github.com/rajanbor/map/tree/main/patterns",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

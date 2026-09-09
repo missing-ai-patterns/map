@@ -17,7 +17,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REGISTRY_URL =
-  "https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json";
+  "https://github.com/rajanbor/map/releases/latest/download/registry.json";
 
 interface Entry {
   id: string;

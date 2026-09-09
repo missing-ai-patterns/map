@@ -120,7 +120,7 @@ describe("registry source resolution", () => {
   });
 
   it("lets MAP_REGISTRY_URL override the published download URL (repo-rename safe)", () => {
-    const url = "https://github.com/missing-ai-patterns/patterns/releases/latest/download/registry.json";
+    const url = "https://github.com/rajanbor/map/releases/latest/download/registry.json";
     expect(defaultRegistryUrl({ MAP_REGISTRY_URL: url })).toBe(url);
     expect(defaultRegistryUrl({})).toBe(DEFAULT_REGISTRY_URL);
     // MAP_REGISTRY_URL sets the default that a bare `map update` uses.

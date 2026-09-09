@@ -3,7 +3,7 @@
 The **MAP registry contract** — one shared definition of the machine-readable
 pattern catalog, so the schema can never drift between the tools that use it.
 
-The [`patterns`](https://github.com/missing-ai-patterns/patterns) repository is the human
+The [`patterns`](https://github.com/rajanbor/map/tree/main/patterns) repository is the human
 source of truth (Markdown). Its build step compiles that content into
 `registry.json`. Every consumer — the CLI, the website, AI agents — reads the
 registry, never the Markdown. This package is the registry's **types + validating
@@ -25,4 +25,4 @@ const registry: RegistryDocument = parseRegistry(await fetchRegistryJson());
 - `parseRegistry(json)` / `SUPPORTED_SCHEMA_VERSION` — validation.
 
 The registry format itself is specified in
-[`docs/specs/registry.md`](https://github.com/missing-ai-patterns/patterns/blob/main/docs/specs/registry.md).
+[`patterns/docs/specs/registry.md`](https://github.com/rajanbor/map/blob/main/patterns/docs/specs/registry.md).

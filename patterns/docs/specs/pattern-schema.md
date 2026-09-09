@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Status** | Draft |
-| **Issue** | [#77](https://github.com/missing-ai-patterns/map/issues/77) |
+| **Issue** | [#77](https://github.com/rajanbor/map/issues/77) |
 | **Owner** | @rajanbor |
 
 ## Summary

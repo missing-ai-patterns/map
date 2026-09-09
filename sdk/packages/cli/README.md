@@ -1,7 +1,7 @@
 # MAP CLI
 
 The `map` command: initialize an AI-architecture workspace in your project,
-analyze the codebase, and adopt [Missing AI Patterns](https://github.com/missing-ai-patterns/patterns).
+analyze the codebase, and adopt [Missing AI Patterns](https://github.com/rajanbor/map/tree/main/patterns).
 
 The CLI consumes the MAP **registry** — the machine-readable catalog published by
 the map repository — never the repository's Markdown directly. A snapshot is

@@ -21,7 +21,7 @@ line, so you can compare candidates at a glance. `--json` is meant for scripts
 and AI agents. `map explain <id>` gives the decision view of one pattern, and
 `map add <id>` copies its prompt/acceptance files into your project.
 
-The CLI lives in [missing-ai-patterns/cli](https://github.com/missing-ai-patterns/cli).
+The CLI lives in [missing-ai-patterns/cli](https://github.com/rajanbor/map/tree/main/sdk).
 
 ## 2. Programmatic: the registry
 

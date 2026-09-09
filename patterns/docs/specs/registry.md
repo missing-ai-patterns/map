@@ -7,7 +7,7 @@
 
 The **registry** is the machine-readable form of the MAP catalog: one JSON artifact,
 `registry.json`, compiled from this repository's content and published with every
-release. Tools — the [MAP CLI](https://github.com/missing-ai-patterns/cli), the future
+release. Tools — the [MAP CLI](https://github.com/rajanbor/map/tree/main/sdk), the future
 website, AI agents — consume the registry, never the Markdown directly. The Markdown
 stays the human source of truth; the registry is its build output.
 
@@ -39,13 +39,13 @@ Every release attaches `registry.json` to the GitHub Release. Consumers should u
 stable latest-release URL:
 
 ```
-https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json
+https://github.com/rajanbor/map/releases/latest/download/registry.json
 ```
 
 or pin a version:
 
 ```
-https://github.com/missing-ai-patterns/map/releases/download/v0.4.0/registry.json
+https://github.com/rajanbor/map/releases/download/v0.4.0/registry.json
 ```
 
 ## Format
@@ -55,7 +55,7 @@ https://github.com/missing-ai-patterns/map/releases/download/v0.4.0/registry.jso
   "schemaVersion": 1,              // integer; bumped only on breaking changes
   "generatedAt": "2026-07-07T12:00:00.000Z",
   "source": {
-    "repository": "https://github.com/missing-ai-patterns/map",
+    "repository": "https://github.com/rajanbor/map",
     "version": "0.4.0"             // the repo VERSION the registry was built from
   },
   "categories": ["retrieval", "memory", "agents", "security", "context",

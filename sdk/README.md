@@ -1,12 +1,12 @@
 <p align="center">
-  <strong>MAP CLI</strong> — the command line for <a href="https://github.com/missing-ai-patterns/map">Missing AI Patterns</a>
+  <strong>MAP CLI</strong> — the command line for <a href="https://github.com/rajanbor/map">Missing AI Patterns</a>
 </p>
 
 # missing-ai-patterns/cli
 
 The `map` command and its shared libraries. The pattern catalog itself — the
 patterns, docs, and specifications — lives in the canonical
-[**map** repository](https://github.com/missing-ai-patterns/map); this repository
+[**map** repository](https://github.com/rajanbor/map); this repository
 consumes its published **registry** artifact.
 
 ```bash
@@ -35,7 +35,7 @@ map repo (patterns, ROADMAP)
 ```
 
 The CLI never parses the map repository's Markdown — it reads `registry.json`
-(see the [registry spec](https://github.com/missing-ai-patterns/map/blob/main/docs/specs/registry.md)).
+(see the [registry spec](https://github.com/rajanbor/map/blob/main/patterns/docs/specs/registry.md)).
 Everything except `map update` works offline.
 
 ## Develop
@@ -69,7 +69,7 @@ MAP_REPO=path/to/map pnpm --filter @missing-ai-patterns/cli sync-snapshot
 
 Issues and PRs about the **CLI, score library, or tooling** belong here; new
 patterns and documentation belong in
-[missing-ai-patterns/map](https://github.com/missing-ai-patterns/map). The
+[missing-ai-patterns/map](https://github.com/rajanbor/map). The
 [vision document](docs/vision.md) describes where the CLI is heading.
 
 ## License

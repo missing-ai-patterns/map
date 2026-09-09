@@ -4,7 +4,7 @@
  * section of index.html from the published registry.
  *
  * The registry is the same artifact every MAP tool consumes
- * (https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json);
+ * (https://github.com/rajanbor/map/releases/latest/download/registry.json);
  * REGISTRY_URL overrides it, REGISTRY_FILE reads a local file instead (offline dev).
  *
  * Fails loudly when the registry can't be fetched or parsed — GitHub Pages then
@@ -22,7 +22,7 @@ const siteDir = join(root, "site");
 const distDir = join(root, "dist");
 
 const DEFAULT_REGISTRY_URL =
-  "https://github.com/missing-ai-patterns/map/releases/latest/download/registry.json";
+  "https://github.com/rajanbor/map/releases/latest/download/registry.json";
 
 const registry = await loadRegistry();
 validate(registry);
@@ -123,7 +123,7 @@ function scoreLine(score) {
 }
 
 function patternUrl(id) {
-  return `https://github.com/missing-ai-patterns/map/tree/main/patterns/${encodeURI(id)}/`;
+  return `https://github.com/rajanbor/map/tree/main/patterns/patterns/${encodeURI(id)}/`;
 }
 
 function footer(doc) {

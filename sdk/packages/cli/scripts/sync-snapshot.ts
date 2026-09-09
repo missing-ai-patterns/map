@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 const packageDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const snapshotPath = join(packageDir, "registry-snapshot", "registry.json");
 const DEFAULT_REGISTRY_URL =
-  "https://github.com/missing-ai-patterns/patterns/releases/latest/download/registry.json";
+  "https://github.com/rajanbor/map/releases/latest/download/registry.json";
 
 const mapRepo = process.env["MAP_REPO"];
 

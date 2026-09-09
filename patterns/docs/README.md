@@ -21,4 +21,4 @@ Specifications (the contracts tools build on — see the
 
 For the patterns themselves, see [`../patterns/`](../patterns/). To contribute, see
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md). The `map` CLI lives in
-[missing-ai-patterns/cli](https://github.com/missing-ai-patterns/cli).
+[missing-ai-patterns/cli](https://github.com/rajanbor/map/tree/main/sdk).
