@@ -15,13 +15,13 @@ jobs:
         with:
           node-version: 22
       - name: Validate the pattern registry
-        run: node patterns/scripts/build-registry.ts --check
+        run: node library/scripts/build-registry.ts --check
 
   sdk:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: sdk
+        working-directory: tooling
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: sdk/pnpm-lock.yaml
+          cache-dependency-path: tooling/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm lint

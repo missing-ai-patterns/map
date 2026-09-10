@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "project": {
+    "name": "map",
+    "createdAt": "2026-09-10T17:17:53.644Z",
+    "languages": []
+  },
+  "analysis": {
+    "analyzers": [],
+    "include": ["src/**"],
+    "exclude": ["**/node_modules/**","**/dist/**","**/.map/**"]
+  },
+  "registry": {
+    "source": "default"
+  },
+  "tools": {
+    "tokenOptimizer": {
+      "budget": 12000,
+      "include": ["**/*.md"],
+      "exclude": ["reports/**", "cache/**"]
+    }
+  },
+  "sources": ["**/*.md"],
+  "targets": {
+    "claude": { "output": "CLAUDE.md" },
+    "agents": { "output": "AGENTS.md" },
+    "gemini": { "output": "GEMINI.md" },
+    "cursor": { "output": ".cursor/rules/map.mdc" },
+    "copilot": { "output": ".github/copilot-instructions.md" }
+  }
+}

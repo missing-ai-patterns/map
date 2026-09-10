@@ -1,0 +1,5 @@
+# MAP workspace — local artifacts that should not be committed.
+cache/*
+!cache/.gitkeep
+reports/*
+!reports/.gitkeep

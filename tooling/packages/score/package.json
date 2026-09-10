@@ -1,0 +1,46 @@
+{
+  "name": "@missing-ai-patterns/score",
+  "version": "0.5.1",
+  "description": "MAP Score — a compact 1–5 star rating system for AI architecture patterns. Schema, validation, and rendering.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rajanbor/map.git",
+    "directory": "packages/score"
+  },
+  "homepage": "https://github.com/rajanbor/map/tree/main/library",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "ai",
+    "architecture",
+    "patterns",
+    "score",
+    "rating"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "tsup": "^8.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.9"
+  }
+}

@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "website/**"
+      - "apps/website/**"
       - ".github/workflows/pages.yml"
   schedule:
     - cron: "17 6 * * 1"
@@ -30,10 +30,10 @@ jobs:
         with:
           node-version: 22
       - name: Build site from the published registry
-        run: node website/scripts/build.mjs
+        run: node apps/website/scripts/build.mjs
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: website/dist
+          path: apps/website/dist
 
   deploy:
     needs: build
@@ -44,4 +44,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-
