@@ -14,7 +14,7 @@ jobs:
         with:
           fetch-depth: 0
       - id: version
-        run: echo "version=$(tr -d '[:space:]' < patterns/VERSION)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(tr -d '[:space:]' < library/VERSION)" >> "$GITHUB_OUTPUT"
       - id: check
         run: |
           TAG="v${{ steps.version.outputs.version }}"
@@ -29,12 +29,11 @@ jobs:
           node-version: 22
       - name: Build registry artifact
         if: steps.check.outputs.exists == 'false'
-        run: node patterns/scripts/build-registry.ts --out patterns/dist/registry.json
+        run: node library/scripts/build-registry.ts --out library/dist/registry.json
       - name: Create release
         if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v${{ steps.version.outputs.version }}"
-          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes patterns/dist/registry.json
-
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes library/dist/registry.json

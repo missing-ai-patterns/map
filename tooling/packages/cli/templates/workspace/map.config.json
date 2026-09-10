@@ -1,0 +1,31 @@
+{
+  "version": {{schemaVersion}},
+  "project": {
+    "name": {{projectName}},
+    "createdAt": {{createdAt}},
+    "languages": {{languages}}
+  },
+  "analysis": {
+    "analyzers": {{analyzers}},
+    "include": {{include}},
+    "exclude": {{exclude}}
+  },
+  "registry": {
+    "source": "default"
+  },
+  "tools": {
+    "tokenOptimizer": {
+      "budget": 12000,
+      "include": ["**/*.md"],
+      "exclude": ["reports/**", "cache/**"]
+    }
+  },
+  "sources": ["**/*.md"],
+  "targets": {
+    "claude": { "output": "CLAUDE.md" },
+    "agents": { "output": "AGENTS.md" },
+    "gemini": { "output": "GEMINI.md" },
+    "cursor": { "output": ".cursor/rules/map.mdc" },
+    "copilot": { "output": ".github/copilot-instructions.md" }
+  }
+}
