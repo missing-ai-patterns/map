@@ -1,0 +1,11 @@
+{
+  "kind": "decision",
+  "id": "adr-0001-human-and-ai-readable-contracts",
+  "title": "Human- and AI-readable project contracts",
+  "date": "2026-09-13",
+  "status": "accepted",
+  "scope": [".map/**", "library/schemas/**"],
+  "priority": "high",
+  "targets": ["agents", "claude", "cursor"],
+  "x-owner": "architecture"
+}

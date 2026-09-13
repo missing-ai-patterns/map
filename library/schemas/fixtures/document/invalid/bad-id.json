@@ -1,0 +1,6 @@
+{
+  "kind": "decision",
+  "id": "ADR 1",
+  "title": "An identifier with spaces",
+  "status": "proposed"
+}

@@ -10,6 +10,7 @@ An open, framework-agnostic knowledge base of AI Engineering patterns.
 
 [Philosophy](docs/philosophy.md) ·
 [Patterns](patterns/) ·
+[Schemas](docs/schemas/) ·
 [Roadmap](ROADMAP.md) ·
 [Contributing](CONTRIBUTING.md) ·
 [Pattern Template](patterns/_template/PATTERN_TEMPLATE.md)
@@ -106,6 +107,7 @@ map/
   reference/     Layer 3, Reference: small implementations (python, typescript)
   examples/      Layer 3: end-to-end examples that combine several patterns
   rfcs/          Design documents for changes that shape the MAP standard
+  schemas/       JSON Schema contracts, examples, and invalid fixtures
   templates/     Generic prompt.md / acceptance.md skeletons patterns start from
   scripts/       Registry builder: compiles the catalog into registry.json
   .github/       Contributor experience: templates, labels, discussions, CI

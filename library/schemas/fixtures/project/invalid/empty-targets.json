@@ -1,0 +1,11 @@
+{
+  "version": 3,
+  "project": {
+    "name": "example",
+    "createdAt": "2026-09-13T08:00:00.000Z",
+    "languages": []
+  },
+  "analysis": { "analyzers": [], "include": [], "exclude": [] },
+  "registry": { "source": "default" },
+  "targets": {}
+}

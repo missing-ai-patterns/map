@@ -1,0 +1,5 @@
+{
+  "version": 3,
+  "analysis": { "analyzers": [], "include": [], "exclude": [] },
+  "registry": { "source": "default" }
+}

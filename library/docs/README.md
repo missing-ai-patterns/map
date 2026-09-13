@@ -18,6 +18,7 @@ Specifications (the contracts tools build on — see the
 - **[Pattern Lifecycle](specs/pattern-lifecycle.md)** — claiming, maturity, deprecation, and renames. *(draft)*
 - **[Decision Guides](specs/decision-guides.md)** — cross-category "X or Y?" guides and their contract. *(draft)*
 - **[Website](specs/website.md)** — the ultra-simple registry-fed site. *(draft)*
+- **[MAP Schemas](schemas/README.md)** — machine contracts paired with human guides and fixtures.
 
 For the patterns themselves, see [`../patterns/`](../patterns/). To contribute, see
 [`../CONTRIBUTING.md`](../CONTRIBUTING.md). The `map` CLI lives in

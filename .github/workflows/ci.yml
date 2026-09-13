@@ -16,6 +16,8 @@ jobs:
           node-version: 22
       - name: Validate the pattern registry
         run: node library/scripts/build-registry.ts --check
+      - name: Validate MAP schemas and fixtures
+        run: node library/scripts/validate-schemas.ts
 
   sdk:
     runs-on: ubuntu-latest
