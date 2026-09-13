@@ -11,12 +11,14 @@ describe("parseConfig", () => {
     const config = parseConfig(
       JSON.stringify({
         version: CONFIG_SCHEMA_VERSION,
+        specVersion: "0.1",
         project: { name: "demo", createdAt: "2026-01-01T00:00:00.000Z", languages: ["typescript"] },
         analysis: { analyzers: ["typescript"], include: ["src/**"], exclude: [] },
         registry: { source: "default" },
       }),
     );
     expect(config.version).toBe(CONFIG_SCHEMA_VERSION);
+    expect(config.specVersion).toBe("0.1");
     expect(config.project.name).toBe("demo");
   });
 
@@ -53,6 +55,44 @@ describe("parseConfig", () => {
     );
     expect(config.sources).toBeUndefined();
     expect(config.targets).toBeUndefined();
+  });
+
+  it("validates the complete manifest vocabulary", () => {
+    const base = {
+      version: CONFIG_SCHEMA_VERSION,
+      project: { name: "demo", createdAt: "2026-01-01T00:00:00.000Z", languages: [] },
+      analysis: { analyzers: [], include: [], exclude: [] },
+      registry: { source: "default" },
+    };
+
+    expect(() => parseConfig(JSON.stringify({ ...base, unknown: true }))).toThrow(/\$\.unknown/);
+    expect(() => parseConfig(JSON.stringify({ ...base, specVersion: "draft" }))).toThrow(
+      /\$\.specVersion/,
+    );
+    expect(() =>
+      parseConfig(JSON.stringify({ ...base, analysis: { ...base.analysis, include: ["../secret"] } })),
+    ).toThrow(/traversal/);
+    expect(() => parseConfig(JSON.stringify({ ...base, targets: {} }))).toThrow(/\$\.targets/);
+  });
+
+  it("accepts extension fields and declarative packs", () => {
+    const config = parseConfig(
+      JSON.stringify({
+        version: CONFIG_SCHEMA_VERSION,
+        specVersion: "0.1",
+        project: {
+          name: "demo",
+          createdAt: "2026-01-01T00:00:00.000Z",
+          languages: [],
+          "x-team": "platform",
+        },
+        analysis: { analyzers: [], include: [], exclude: [] },
+        registry: { source: "default" },
+        packs: [{ name: "@map/reviewer", version: "^1.0.0" }],
+        "x-owner": "architecture",
+      }),
+    );
+    expect(config.packs).toEqual([{ name: "@map/reviewer", version: "^1.0.0" }]);
   });
 
   it("exposes sensible compiler defaults", () => {

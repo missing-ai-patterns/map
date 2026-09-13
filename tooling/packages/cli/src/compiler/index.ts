@@ -20,7 +20,7 @@ export { documentsForTarget } from "./context.ts";
 export type { Context, Document } from "./context.ts";
 
 export { parseFrontmatter } from "./frontmatter.ts";
-export type { Frontmatter, Priority } from "./frontmatter.ts";
+export type { DocumentStatus, Frontmatter, Priority } from "./frontmatter.ts";
 
 export { parseYaml } from "./yaml-parse.ts";
 export type { YamlNode } from "./yaml-parse.ts";

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/rajanbor/map/main/library/schemas/document.schema.json",
+  "title": "MAP document frontmatter",
+  "description": "Shared machine-readable envelope for typed Markdown documents in .map/.",
+  "type": "object",
+  "required": ["kind", "id", "title", "status"],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[/-][a-z0-9][a-z0-9-]*)*$"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[/-][a-z0-9][a-z0-9-]*)*$"
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "draft",
+        "active",
+        "accepted",
+        "rejected",
+        "superseded",
+        "deprecated",
+        "archived"
+      ]
+    },
+    "scope": {
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
+    "priority": {
+      "enum": ["high", "normal", "low"],
+      "default": "normal"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "patternProperties": {
+    "^x-[a-z0-9][a-z0-9-]*$": true
+  },
+  "additionalProperties": false
+}

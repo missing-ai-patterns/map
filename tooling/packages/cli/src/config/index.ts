@@ -1,4 +1,4 @@
-export type { MapConfig, CompilerTarget, TokenOptimizerConfig } from "./config.ts";
+export type { MapConfig, CompilerTarget, TokenOptimizerConfig, PackReference } from "./config.ts";
 export {
   CONFIG_SCHEMA_VERSION,
   MAP_DIR,

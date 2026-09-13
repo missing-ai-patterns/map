@@ -73,6 +73,29 @@ describe("parseFrontmatter", () => {
     expect(parsed.body).toBe("# Body");
   });
 
+  it("parses the canonical document envelope", () => {
+    const parsed = parseFrontmatter(`---
+kind: decision
+id: adr-0001-example
+title: Example decision
+date: 2026-09-13
+status: accepted
+scope: [src/**, tests/**]
+targets: [agents, cursor]
+---
+# Decision`);
+
+    expect(parsed.frontmatter).toMatchObject({
+      kind: "decision",
+      id: "adr-0001-example",
+      title: "Example decision",
+      date: "2026-09-13",
+      status: "accepted",
+      scope: ["src/**", "tests/**"],
+      targets: ["agents", "cursor"],
+    });
+  });
+
   it("defaults to all targets and normal priority when absent", () => {
     const parsed = parseFrontmatter("# Just a body");
     expect(parsed.frontmatter.targets).toBeNull();

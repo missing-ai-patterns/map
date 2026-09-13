@@ -1,0 +1,7 @@
+{
+  "kind": "agent",
+  "id": "reviewer",
+  "title": "Reviewer",
+  "status": "active",
+  "vendorMagic": true
+}

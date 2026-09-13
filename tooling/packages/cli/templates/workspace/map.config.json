@@ -1,5 +1,6 @@
 {
   "version": {{schemaVersion}},
+  "specVersion": "0.1",
   "project": {
     "name": {{projectName}},
     "createdAt": {{createdAt}},

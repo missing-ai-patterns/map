@@ -29,6 +29,8 @@ export const LEGACY_WORKSPACE_FILES = [
 
 export interface MapConfig {
   readonly version: number;
+  /** MAP Standard version. Optional in legacy v2/v3 workspaces. */
+  readonly specVersion?: string;
   readonly project: {
     readonly name: string;
     readonly createdAt: string;
@@ -45,6 +47,8 @@ export interface MapConfig {
     /** "default" or an explicit registry URL/path. */
     readonly source: string;
   };
+  /** Declarative pack requirements; resolution is introduced separately. */
+  readonly packs?: readonly PackReference[];
   /** Project-level tools configured for this MAP workspace. */
   readonly tools?: {
     readonly tokenOptimizer?: TokenOptimizerConfig;
@@ -59,6 +63,13 @@ export interface MapConfig {
    * cursor, copilot, …). Absent → `DEFAULT_TARGETS`.
    */
   readonly targets?: Readonly<Record<string, CompilerTarget>>;
+}
+
+export interface PackReference {
+  /** Namespaced pack id, for example `@map/reviewer`. */
+  readonly name: string;
+  /** Optional semver version or range. */
+  readonly version?: string;
 }
 
 export interface TokenOptimizerConfig {
@@ -92,18 +103,152 @@ export const DEFAULT_TARGETS: Readonly<Record<string, CompilerTarget>> = {
 /** Parse and structurally validate a map.config.json document. */
 export function parseConfig(json: string): MapConfig {
   const data: unknown = JSON.parse(json);
-  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+  if (!isRecord(data)) {
     throw new Error(`${CONFIG_FILE} must be a JSON object`);
   }
-  const config = data as MapConfig;
-  if (typeof config.version !== "number") {
+  if (typeof data.version !== "number" || !Number.isInteger(data.version)) {
     throw new Error(`${CONFIG_FILE} has no numeric 'version'`);
   }
-  if (config.version > CONFIG_SCHEMA_VERSION) {
+  if (data.version > CONFIG_SCHEMA_VERSION) {
     throw new Error(
-      `${CONFIG_FILE} version ${config.version} is newer than this CLI supports ` +
+      `${CONFIG_FILE} version ${data.version} is newer than this CLI supports ` +
         `(${CONFIG_SCHEMA_VERSION}); update the CLI`,
     );
   }
-  return config;
+  if (data.version < 2) {
+    throw new Error(`${CONFIG_FILE}.version must be at least 2; run 'map init --yes' to migrate`);
+  }
+
+  assertKeys(data, ["version", "specVersion", "project", "analysis", "registry", "packs", "tools", "sources", "targets"], "$", true);
+  if (data.specVersion !== undefined) {
+    assertString(data.specVersion, "$.specVersion", /^\d+\.\d+$/);
+  }
+
+  const project = assertObject(data.project, "$.project");
+  assertKeys(project, ["name", "createdAt", "languages"], "$.project", true);
+  assertString(project.name, "$.project.name", /\S/);
+  const createdAt = assertString(project.createdAt, "$.project.createdAt");
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(createdAt)) {
+    fail("$.project.createdAt", "must be an RFC 3339 UTC timestamp");
+  }
+  assertStringArray(project.languages, "$.project.languages", true);
+
+  const analysis = assertObject(data.analysis, "$.analysis");
+  assertKeys(analysis, ["analyzers", "include", "exclude"], "$.analysis", true);
+  assertStringArray(analysis.analyzers, "$.analysis.analyzers", true);
+  for (const key of ["include", "exclude"] as const) {
+    const values = assertStringArray(analysis[key], `$.analysis.${key}`, true);
+    values.forEach((value, index) => assertRelativePath(value, `$.analysis.${key}[${index}]`));
+  }
+
+  const registry = assertObject(data.registry, "$.registry");
+  assertKeys(registry, ["source"], "$.registry", true);
+  assertString(registry.source, "$.registry.source", /\S/);
+
+  if (data.packs !== undefined) validatePacks(data.packs);
+  if (data.tools !== undefined) validateTools(data.tools);
+  if (data.sources !== undefined) {
+    const sources = assertStringArray(data.sources, "$.sources", false);
+    sources.forEach((source, index) => assertRelativePath(source, `$.sources[${index}]`));
+  }
+  if (data.targets !== undefined) validateTargets(data.targets);
+
+  return data as unknown as MapConfig;
+}
+
+function validatePacks(value: unknown): void {
+  if (!Array.isArray(value)) fail("$.packs", "must be an array");
+  const names = new Set<string>();
+  value.forEach((entry, index) => {
+    const path = `$.packs[${index}]`;
+    const pack = assertObject(entry, path);
+    assertKeys(pack, ["name", "version"], path, true);
+    const name = assertString(pack.name, `${path}.name`, /^@[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*$/);
+    if (names.has(name)) fail(`${path}.name`, "must be unique");
+    names.add(name);
+    if (pack.version !== undefined) assertString(pack.version, `${path}.version`, /\S/);
+  });
+}
+
+function validateTools(value: unknown): void {
+  const tools = assertObject(value, "$.tools");
+  assertKeys(tools, ["tokenOptimizer"], "$.tools", true);
+  if (tools.tokenOptimizer === undefined) return;
+  const optimizer = assertObject(tools.tokenOptimizer, "$.tools.tokenOptimizer");
+  assertKeys(optimizer, ["budget", "include", "exclude"], "$.tools.tokenOptimizer", true);
+  if (optimizer.budget !== undefined &&
+      (typeof optimizer.budget !== "number" || !Number.isInteger(optimizer.budget) || optimizer.budget < 1)) {
+    fail("$.tools.tokenOptimizer.budget", "must be a positive integer");
+  }
+  for (const key of ["include", "exclude"] as const) {
+    if (optimizer[key] === undefined) continue;
+    const values = assertStringArray(optimizer[key], `$.tools.tokenOptimizer.${key}`, true);
+    values.forEach((item, index) => assertRelativePath(item, `$.tools.tokenOptimizer.${key}[${index}]`));
+  }
+}
+
+function validateTargets(value: unknown): void {
+  const targets = assertObject(value, "$.targets");
+  if (Object.keys(targets).length === 0) fail("$.targets", "must define at least one target");
+  for (const [id, rawTarget] of Object.entries(targets)) {
+    if (!/^[a-z][a-z0-9-]*$/.test(id)) fail(`$.targets.${id}`, "has an invalid target id");
+    const path = `$.targets.${id}`;
+    const target = assertObject(rawTarget, path);
+    assertKeys(target, ["output", "adapter"], path, true);
+    assertRelativePath(assertString(target.output, `${path}.output`, /\S/), `${path}.output`);
+    if (target.adapter !== undefined) {
+      assertString(target.adapter, `${path}.adapter`, /^[a-z][a-z0-9-]*$/);
+    }
+  }
+}
+
+function assertObject(value: unknown, path: string): Record<string, unknown> {
+  if (!isRecord(value)) fail(path, "must be an object");
+  return value;
+}
+
+function assertKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  path: string,
+  allowExtensions: boolean,
+): void {
+  for (const key of Object.keys(value)) {
+    if (!allowed.includes(key) && !(allowExtensions && key.startsWith("x-"))) {
+      fail(`${path}.${key}`, "is not a recognized field; use an 'x-' prefix for extensions");
+    }
+  }
+}
+
+function assertString(value: unknown, path: string, pattern?: RegExp): string {
+  if (typeof value !== "string" || value.length === 0) fail(path, "must be a non-empty string");
+  if (pattern !== undefined && !pattern.test(value)) fail(path, "has an invalid format");
+  return value;
+}
+
+function assertStringArray(value: unknown, path: string, allowEmpty: boolean): readonly string[] {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) {
+    fail(path, allowEmpty ? "must be an array" : "must be a non-empty array");
+  }
+  const seen = new Set<string>();
+  value.forEach((item, index) => {
+    const text = assertString(item, `${path}[${index}]`);
+    if (seen.has(text)) fail(`${path}[${index}]`, "must be unique");
+    seen.add(text);
+  });
+  return value as string[];
+}
+
+function assertRelativePath(value: string, path: string): void {
+  if (/^(?:\/|[A-Za-z]:[\\/])/.test(value) || /(?:^|[\\/])\.\.(?:[\\/]|$)/.test(value)) {
+    fail(path, "must be a project-relative path or glob without '..' traversal");
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function fail(path: string, reason: string): never {
+  throw new Error(`${CONFIG_FILE}: ${path} ${reason}`);
 }

@@ -41,7 +41,7 @@ describe("token optimizer", () => {
     const storage = fakeStorage({
       [join(root, ".map/map.config.json")]: JSON.stringify({
         version: 3,
-        project: { name: "demo", createdAt: "2026-01-01", languages: [] },
+        project: { name: "demo", createdAt: "2026-01-01T00:00:00.000Z", languages: [] },
         analysis: { analyzers: [], include: [], exclude: [] },
         registry: { source: "default" },
         tools: { tokenOptimizer: { budget: 10, include: ["**/*.md"], exclude: [] } },
@@ -94,7 +94,7 @@ describe("token optimizer", () => {
     const storage = fakeStorage({
       "/project/.map/map.config.json": JSON.stringify({
         version: 3,
-        project: { name: "demo", createdAt: "2026-01-01", languages: [] },
+        project: { name: "demo", createdAt: "2026-01-01T00:00:00.000Z", languages: [] },
         analysis: { analyzers: [], include: [], exclude: [] },
         registry: { source: "default" },
       }),

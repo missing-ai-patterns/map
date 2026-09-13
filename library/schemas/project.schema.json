@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/rajanbor/map/main/library/schemas/project.schema.json",
+  "title": "MAP project manifest",
+  "description": "Configuration contract for .map/map.config.json.",
+  "type": "object",
+  "required": ["version", "project", "analysis", "registry"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 2, "maximum": 3 },
+    "specVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "default": "0.1"
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "createdAt", "languages"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "pattern": ".*\\S.*" },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?Z$"
+        },
+        "languages": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "default": []
+        }
+      },
+      "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+      "additionalProperties": false
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["analyzers", "include", "exclude"],
+      "properties": {
+        "analyzers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true,
+          "default": []
+        },
+        "include": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/relativePath" },
+          "uniqueItems": true,
+          "default": []
+        },
+        "exclude": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/relativePath" },
+          "uniqueItems": true,
+          "default": []
+        }
+      },
+      "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+      "additionalProperties": false
+    },
+    "registry": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1, "pattern": ".*\\S.*", "default": "default" }
+      },
+      "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+      "additionalProperties": false
+    },
+    "packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^@[a-z0-9][a-z0-9-]*/[a-z0-9][a-z0-9-]*$"
+          },
+          "version": { "type": "string", "minLength": 1 }
+        },
+        "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+        "additionalProperties": false
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "tools": {
+      "type": "object",
+      "properties": {
+        "tokenOptimizer": {
+          "type": "object",
+          "properties": {
+            "budget": { "type": "integer", "minimum": 1 },
+            "include": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/relativePath" },
+              "uniqueItems": true
+            },
+            "exclude": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/relativePath" },
+              "uniqueItems": true
+            }
+          },
+          "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relativePath" },
+      "minItems": 1,
+      "uniqueItems": true,
+      "default": ["**/*.md"]
+    },
+    "targets": {
+      "type": "object",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z][a-z0-9-]*$": {
+          "type": "object",
+          "required": ["output"],
+          "properties": {
+            "output": { "$ref": "#/$defs/relativePath" },
+            "adapter": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            }
+          },
+          "patternProperties": { "^x-[a-z0-9][a-z0-9-]*$": true },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "patternProperties": {
+    "^x-[a-z0-9][a-z0-9-]*$": true
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*(?:^|[\\\\/])\\.\\.(?:[\\\\/]|$)).+$"
+    }
+  }
+}
