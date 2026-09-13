@@ -39,6 +39,11 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Test the GitHub installer
+        working-directory: .
+        run: |
+          MAP_INSTALL_DIR="$RUNNER_TEMP/map-bin" ./scripts/install.sh
+          "$RUNNER_TEMP/map-bin/map" --version
       - name: Smoke-test the built CLI
         run: |
           node packages/cli/dist/map.js --help
