@@ -1,7 +1,7 @@
 {
   "name": "@missing-ai-patterns/cli",
   "version": "0.5.1",
-  "description": "MAP CLI \u2014 initialize, analyze, optimize, and compile an AI engineering workspace.",
+  "description": "MAP CLI — initialize, analyze, optimize, and compile an AI engineering workspace.",
   "type": "module",
   "license": "MIT",
   "repository": {
@@ -44,16 +44,16 @@
     "analysis"
   ],
   "dependencies": {
-    "@inquirer/prompts": "^7.0.0",
-    "commander": "^14.0.0",
+    "@inquirer/prompts": "^7.10.1",
     "@missing-ai-patterns/registry": "workspace:^",
-    "@missing-ai-patterns/score": "workspace:^"
+    "@missing-ai-patterns/score": "workspace:^",
+    "commander": "^14.0.3"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@vitest/coverage-v8": "^4.1.9",
-    "tsup": "^8.0.0",
-    "typescript": "^5.6.0",
-    "vitest": "^4.1.9"
+    "@types/node": "^22.20.2",
+    "@vitest/coverage-v8": "^4.1.11",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
   }
 }
