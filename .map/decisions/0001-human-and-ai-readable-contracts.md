@@ -4,6 +4,8 @@ id: adr-0001-human-and-ai-readable-contracts
 title: Human- and AI-readable project contracts
 status: accepted
 date: 2026-09-13
+owners: [rajanbor]
+tags: [contracts, schemas]
 priority: high
 targets: [agents, claude, gemini, cursor, copilot]
 ---

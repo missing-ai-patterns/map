@@ -1,0 +1,7 @@
+{
+  "kind": "decision",
+  "id": "adr-0002-no-owner",
+  "title": "Ownerless decision",
+  "status": "proposed",
+  "date": "2026-09-13"
+}

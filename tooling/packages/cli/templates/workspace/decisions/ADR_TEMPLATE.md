@@ -4,6 +4,8 @@ id: adr-NNNN-short-title
 title: Short decision title
 status: proposed
 date: YYYY-MM-DD
+owners: [github-handle-or-team]
+tags: [architecture]
 priority: normal
 ---
 
