@@ -6,6 +6,20 @@
   "type": "object",
   "required": ["kind", "id", "title", "status"],
   "properties": {
+    "kind": { "$ref": "#/$defs/kind" },
+    "id": { "$ref": "#/$defs/id" },
+    "title": { "$ref": "#/$defs/title" },
+    "date": { "$ref": "#/$defs/date" },
+    "status": { "$ref": "#/$defs/status" },
+    "scope": { "$ref": "#/$defs/scope" },
+    "priority": { "$ref": "#/$defs/priority" },
+    "targets": { "$ref": "#/$defs/targets" }
+  },
+  "patternProperties": {
+    "^x-[a-z0-9][a-z0-9-]*$": true
+  },
+  "additionalProperties": false,
+  "$defs": {
     "kind": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9]*(?:[/-][a-z0-9][a-z0-9-]*)*$"
@@ -48,16 +62,9 @@
     },
     "targets": {
       "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9-]*$"
-      },
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
       "minItems": 1,
       "uniqueItems": true
     }
-  },
-  "patternProperties": {
-    "^x-[a-z0-9][a-z0-9-]*$": true
-  },
-  "additionalProperties": false
+  }
 }

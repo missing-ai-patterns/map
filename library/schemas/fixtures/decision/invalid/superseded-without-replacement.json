@@ -1,0 +1,8 @@
+{
+  "kind": "decision",
+  "id": "adr-0001-old-contract",
+  "title": "Old contract",
+  "status": "superseded",
+  "date": "2026-01-01",
+  "owners": ["platform-team"]
+}

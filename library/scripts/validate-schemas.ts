@@ -4,6 +4,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseYaml } from "../../tooling/packages/cli/src/compiler/yaml-parse.ts";
 
 type JsonSchema = boolean | Record<string, unknown>;
 
@@ -20,13 +21,21 @@ interface Contract {
 const CONTRACTS: readonly Contract[] = [
   { name: "document", schema: "document.schema.json", fixtures: "document" },
   { name: "project", schema: "project.schema.json", fixtures: "project" },
+  { name: "decision", schema: "decision.schema.json", fixtures: "decision" },
 ];
 
 const failures: string[] = [];
+const schemaRegistry = new Map<string, JsonSchema>();
+
+for (const contract of CONTRACTS) {
+  const schema = await readJson(join(SCHEMA_ROOT, contract.schema)) as Record<string, unknown>;
+  schemaRegistry.set(contract.schema, schema);
+  if (typeof schema.$id === "string") schemaRegistry.set(schema.$id, schema);
+}
 
 for (const contract of CONTRACTS) {
   const schemaPath = join(SCHEMA_ROOT, contract.schema);
-  const schema = await readJson(schemaPath) as Record<string, unknown>;
+  const schema = schemaRegistry.get(contract.schema) as Record<string, unknown>;
   if (schema.$schema !== DRAFT) {
     failures.push(`${display(schemaPath)}: $schema must be ${DRAFT}`);
     continue;
@@ -62,6 +71,8 @@ for (const [name, value] of [
   if (errors.length > 0) failures.push(`${name}: ${withRemediation(errors[0]!)}`);
 }
 
+await validateDecisionDocuments();
+
 if (failures.length > 0) {
   failures.forEach((failure) => process.stderr.write(`error: ${failure}\n`));
   process.stderr.write(`schema validation failed with ${failures.length} error(s).\n`);
@@ -87,6 +98,11 @@ function validate(
   const errors: string[] = [];
   if (Array.isArray(schema.allOf)) {
     schema.allOf.forEach((candidate) => errors.push(...validate(value, candidate as JsonSchema, root, path)));
+  }
+  if (schema.if !== undefined) {
+    const conditionMatches = validate(value, schema.if as JsonSchema, root, path).length === 0;
+    const branch = conditionMatches ? schema.then : schema.else;
+    if (branch !== undefined) errors.push(...validate(value, branch as JsonSchema, root, path));
   }
   for (const keyword of ["anyOf", "oneOf"] as const) {
     const candidates = schema[keyword];
@@ -205,9 +221,12 @@ function validateObject(
 }
 
 function resolveReference(reference: string, root: Record<string, unknown>): JsonSchema {
-  if (!reference.startsWith("#/")) throw new Error(`unsupported external schema reference: ${reference}`);
-  let current: unknown = root;
-  for (const encoded of reference.slice(2).split("/")) {
+  const [resource, fragment = ""] = reference.split("#", 2);
+  let current: unknown = resource === "" ? root : schemaRegistry.get(resource!);
+  if (current === undefined) throw new Error(`unresolved schema resource: ${resource}`);
+  if (fragment === "") return current as JsonSchema;
+  if (!fragment.startsWith("/")) throw new Error(`unsupported schema reference: ${reference}`);
+  for (const encoded of fragment.slice(1).split("/")) {
     const key = encoded.replace(/~1/g, "/").replace(/~0/g, "~");
     if (!isRecord(current) || !(key in current)) throw new Error(`unresolved schema reference: ${reference}`);
     current = current[key];
@@ -216,6 +235,60 @@ function resolveReference(reference: string, root: Record<string, unknown>): Jso
     throw new Error(`schema reference is not a schema: ${reference}`);
   }
   return current;
+}
+
+async function validateDecisionDocuments(): Promise<void> {
+  const directory = join(WORKSPACE_ROOT, ".map/decisions");
+  const paths = (await readdir(directory, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && /^\d{4}-.+\.md$/.test(entry.name))
+    .map((entry) => join(directory, entry.name))
+    .sort();
+  const schema = schemaRegistry.get("decision.schema.json") as Record<string, unknown>;
+  const ids = new Set<string>();
+  const documents: Array<{ path: string; metadata: Record<string, unknown> }> = [];
+
+  for (const path of paths) {
+    const source = await readFile(path, "utf8");
+    const match = /^---\n([\s\S]*?)\n---\n/.exec(source);
+    if (match === null) {
+      failures.push(`${display(path)}: typed decision requires YAML frontmatter`);
+      continue;
+    }
+    const parsed = parseYaml(match[1]!);
+    if (!isRecord(parsed)) {
+      failures.push(`${display(path)}: frontmatter must be a mapping`);
+      continue;
+    }
+    const errors = validate(parsed, schema, schema);
+    if (errors.length > 0) failures.push(`${display(path)}: ${withRemediation(errors[0]!)}`);
+    if (typeof parsed.id === "string") ids.add(parsed.id);
+    documents.push({ path, metadata: parsed });
+
+    if (parsed.status === "accepted") {
+      for (const heading of ["Context", "Decision", "Consequences", "Verification"]) {
+        if (!hasNonEmptySection(source, heading)) {
+          failures.push(`${display(path)}: accepted decision requires a non-empty '${heading}' section`);
+        }
+      }
+    }
+  }
+
+  for (const document of documents) {
+    const references = [
+      ...(Array.isArray(document.metadata.supersedes) ? document.metadata.supersedes : []),
+      ...(typeof document.metadata.supersededBy === "string" ? [document.metadata.supersededBy] : []),
+    ];
+    references.forEach((reference) => {
+      if (typeof reference === "string" && !ids.has(reference)) {
+        failures.push(`${display(document.path)}: decision reference '${reference}' does not exist`);
+      }
+    });
+  }
+}
+
+function hasNonEmptySection(source: string, heading: string): boolean {
+  const match = new RegExp(`^## ${heading}\\s*$\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "mu").exec(source);
+  return match !== null && match[1]!.trim().length > 0;
 }
 
 function matchesType(value: unknown, type: string): boolean {
