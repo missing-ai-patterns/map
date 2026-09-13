@@ -4,9 +4,10 @@ packages:
 # Skip re-verifying/installing deps before each `pnpm run` script.
 verifyDepsBeforeRun: false
 
-# Force a patched vite (a transitive vitest dev dependency) to keep `pnpm audit` clean.
+# Keep security-sensitive transitive build dependencies on patched releases.
 overrides:
   vite: ">=6.4.3"
+  esbuild: ">=0.28.1"
 
-allowBuilds:
-  esbuild: set this to true or false
+onlyBuiltDependencies:
+  - esbuild
