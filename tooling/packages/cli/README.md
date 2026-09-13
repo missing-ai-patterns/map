@@ -9,12 +9,18 @@ bundled with the package, so everything except `map update` works offline.
 
 ## Install
 
+The CLI is currently installed from the MAP GitHub repository. The npm package is
+not published yet.
+
 ```bash
-npm install -g @missing-ai-patterns/cli   # or pnpm add -g / npx
+git clone https://github.com/rajanbor/map.git
+cd map
+./scripts/install.sh
 map --help
 ```
 
-Requires Node >= 20.
+Requires Git, Node >= 20, and `pnpm` or `corepack`. The installer builds this checkout
+and links `map` into `~/.local/bin`; set `MAP_INSTALL_DIR` to choose another location.
 
 ## Commands
 

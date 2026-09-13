@@ -3,10 +3,23 @@
 MAP turns project-specific AI knowledge into a small, versioned workspace that
 both people and coding agents can use.
 
-## 1. Initialize a project
+## 1. Install MAP from GitHub
 
 ```bash
-npm install -g @missing-ai-patterns/cli
+git clone https://github.com/rajanbor/map.git
+cd map
+./scripts/install.sh
+map --version
+```
+
+MAP is currently distributed from its GitHub repository; the npm package is not
+published yet. The installer builds the CLI and links it into `~/.local/bin` without
+overwriting an unrelated executable. It requires Git, Node.js 20+, and `pnpm` or
+`corepack`.
+
+## 2. Initialize a project
+
+```bash
 cd your-project
 map init
 ```
@@ -14,7 +27,7 @@ map init
 The initializer detects known language markers and creates `.map/`. It keeps
 existing files unless `--force` is explicitly supplied.
 
-## 2. Understand the architecture
+## 3. Understand the architecture
 
 ```bash
 map analyze
@@ -26,7 +39,7 @@ map patterns retrieval
 maps those signals to production patterns, and `patterns` lets you browse the
 full library.
 
-## 3. Adopt knowledge into the project
+## 4. Adopt knowledge into the project
 
 ```bash
 map add retrieval/chunking
@@ -36,7 +49,7 @@ The pattern's prompt, acceptance criteria, and metadata are copied into
 `.map/patterns/`, where they can be adapted to the application and reviewed
 with the rest of the code.
 
-## 4. Keep context efficient
+## 5. Keep context efficient
 
 ```bash
 map optimize
@@ -49,7 +62,7 @@ shows the largest files, identifies substantial repeated blocks, and optionally
 enforces the budget in CI. The default budget and globs live under
 `tools.tokenOptimizer` in `.map/map.config.json`.
 
-## 5. Compile assistant instructions
+## 6. Compile assistant instructions
 
 ```bash
 map sync

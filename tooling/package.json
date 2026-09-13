@@ -1,6 +1,7 @@
 {
   "name": "@missing-ai-patterns/cli-workspace",
   "private": true,
+  "packageManager": "pnpm@10.11.0",
   "description": "Workspace for the MAP CLI and shared libraries.",
   "type": "module",
   "license": "MIT",
